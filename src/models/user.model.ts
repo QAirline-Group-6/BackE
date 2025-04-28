@@ -16,8 +16,6 @@ export class User extends Model<UserAttributes, UserCreationAttributes> implemen
   public phone!: string;
   public password!: string;
   public role!: 'customer' | 'admin';
-
-  // Nếu dùng timestamps, có thể thêm createdAt/updatedAt ở đây
 }
 
 export default (sequelize: Sequelize) => {

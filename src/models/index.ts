@@ -5,14 +5,15 @@ import dotenv from 'dotenv';
 import UserModel, { User } from './user.model';
 import FlightModel, { Flight } from './flight.model';
 import BookingModel, { Booking } from './booking.model';
+import AircraftModel, { Aircraft } from './aircraft.model';
 
 dotenv.config();
 
 // Khởi tạo Sequelize instance
 const sequelize = new Sequelize(
-  process.env.DB_NAME || 'your_database',
-  process.env.DB_USER || 'your_user',
-  process.env.DB_PASSWORD || 'your_password',
+  process.env.DB_NAME || 'plane',
+  process.env.DB_USER || 'quocanh',
+  process.env.DB_PASSWORD || '28012004',
   {
     host: process.env.DB_HOST || 'localhost',
     dialect: (process.env.DB_DIALECT as Dialect) || 'mysql',
@@ -24,6 +25,7 @@ const sequelize = new Sequelize(
 const UserModelInstance = UserModel(sequelize);
 const FlightModelInstance = FlightModel(sequelize);
 const BookingModelInstance = BookingModel(sequelize);
+const AircraftModelInstance = AircraftModel(sequelize)
 
 // (Optional) Nếu bạn cần định nghĩa association giữa các bảng
 // Ví dụ:
@@ -36,7 +38,8 @@ const db = {
   User: UserModelInstance,
   Flight: FlightModelInstance,
   Booking: BookingModelInstance,
+  Aircraft: AircraftModelInstance,
 };
 
 export default db;
-export { User, Flight, Booking };
+export { User, Flight, Booking, Aircraft };

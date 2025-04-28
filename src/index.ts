@@ -9,7 +9,7 @@ dotenv.config();
 const PORT = process.env.PORT || 3000;
 
 // Sync DB and start the server
-db.sequelize.sync({ alter: true })
+db.sequelize.sync()
   .then(() => {
     console.log('✅ Kết nối DB và đồng bộ thành công.');
     app.listen(PORT, () => {
