@@ -20,7 +20,7 @@ router.put('/:id', authMiddleware.authenticateToken, authMiddleware.authorizeRol
 router.delete('/:id', authMiddleware.authenticateToken, authMiddleware.authorizeRoles('admin'), flightController.deleteFlight);
 
 // Tạo chuyến bay (Khi user là admin)
-router.post('/flights', authMiddleware.authenticateToken, authMiddleware.authorizeRoles('admin'), flightController.createFlight
+router.post('/', authMiddleware.authenticateToken, authMiddleware.authorizeRoles('admin'), flightController.createFlight
 );
 
 export default router;

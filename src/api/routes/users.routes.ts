@@ -1,23 +1,24 @@
 import express from 'express'
 const router = express.Router();
 const userController = require('../../controllers/users.controller');
+const authMiddleware = require('../middlewares/auth.middleware')
 
 // Lấy tất cả người dùng
-router.get('/', userController.getAllUsers);
+router.get('/', authMiddleware.authenticateToken, authMiddleware.authorizeRoles('admin'), userController.getAllUsers);
 
 // Lấy người dùng theo ID
-router.get('/:id', userController.getUserById);
+router.get('/:id', authMiddleware.authenticateToken, authMiddleware.authorizeRoles('admin'),  userController.getUserById);
 
 // Cập nhật người dùng
-router.put('/:id', userController.updateUser);
+router.put('/:id', authMiddleware.authenticateToken, authMiddleware.authorizeRoles('admin'), userController.updateUser);
 
 // Xoá người dùng
-router.delete('/:id', userController.deleteUser);
+router.delete('/:id', authMiddleware.authenticateToken, authMiddleware.authorizeRoles('admin'), userController.deleteUser);
 
-// Đăng ký
+// Đăng ký (cho khách)
 router.post('/register', userController.registerUser);
 
-// Đăng nhập
+// Đăng nhập (cho khách)
 router.post('/login', userController.loginUser);
 
 
