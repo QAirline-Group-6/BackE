@@ -1,5 +1,6 @@
 import { Request, Response } from 'express';
 import db from '../models';
+import { Sequelize, Op } from 'sequelize';
 
 const Flight = db.Flight;
 
@@ -73,5 +74,30 @@ export const deleteFlight = async (req: Request, res: Response): Promise<void> =
     res.status(204).end();
   } catch (err: any) {
     res.status(500).json({ error: err.message });
+  }
+};
+
+export const searchFlights = async (req: Request, res: Response) => {
+  try {
+    const from = (req.query.departure as string)?.toLowerCase();
+    const to = (req.query.destination as string)?.toLowerCase();
+
+    if (!from || !to) {
+      return res.status(400).json({ message: 'Missing departure or destination' });
+    }
+
+    const flights = await Flight.findAll({
+      where: {
+        [Op.and]: [ // Không phân biệt chữ hoa, chữ thường
+          Sequelize.where(Sequelize.fn('LOWER', Sequelize.col('departure')), from),
+          Sequelize.where(Sequelize.fn('LOWER', Sequelize.col('destination')), to),
+        ],
+      },
+    });
+
+    res.status(200).json(flights);
+  } catch (error) {
+    console.error('Error searching flights:', error);
+    res.status(500).json({ message: 'Internal server error' });
   }
 };

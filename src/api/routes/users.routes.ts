@@ -10,10 +10,10 @@ router.get('/', authMiddleware.authenticateToken, authMiddleware.authorizeRoles(
 router.get('/:id', authMiddleware.authenticateToken, authMiddleware.authorizeRoles('admin'),  userController.getUserById);
 
 // Cập nhật người dùng
-router.put('/:id', authMiddleware.authenticateToken, authMiddleware.authorizeRoles('admin'), userController.updateUser);
+router.put('/put/:id', authMiddleware.authenticateToken, authMiddleware.authorizeRoles('admin'), userController.updateUser);
 
 // Xoá người dùng
-router.delete('/:id', authMiddleware.authenticateToken, authMiddleware.authorizeRoles('admin'), userController.deleteUser);
+router.delete('/del/:id', authMiddleware.authenticateToken, authMiddleware.authorizeRoles('admin'), userController.deleteUser);
 
 // Đăng ký (cho khách)
 router.post('/register', userController.registerUser);

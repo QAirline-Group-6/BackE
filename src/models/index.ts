@@ -6,6 +6,8 @@ import UserModel, { User } from './user.model';
 import FlightModel, { Flight } from './flight.model';
 import BookingModel, { Booking } from './booking.model';
 import AircraftModel, { Aircraft } from './aircraft.model';
+import SeatModel, {Seat} from './seat.model';
+import CustomerModel, {Customer} from './customer.model';
 
 dotenv.config();
 
@@ -25,12 +27,18 @@ const sequelize = new Sequelize(
 const UserModelInstance = UserModel(sequelize);
 const FlightModelInstance = FlightModel(sequelize);
 const BookingModelInstance = BookingModel(sequelize);
-const AircraftModelInstance = AircraftModel(sequelize)
+const AircraftModelInstance = AircraftModel(sequelize);
+const SeatModelInstance = SeatModel(sequelize);
+const CustomerModelInstance = CustomerModel(sequelize);
 
-// (Optional) Nếu bạn cần định nghĩa association giữa các bảng
-// Ví dụ:
-// UserModelInstance.hasMany(BookingModelInstance, { foreignKey: 'user_id' });
-// BookingModelInstance.belongsTo(UserModelInstance, { foreignKey: 'user_id' });
+// Khai báo quan hệ
+Booking.belongsTo(Flight, { foreignKey: 'flight_id' });
+Booking.belongsTo(Seat, { foreignKey: 'seat_id' });
+
+
+Flight.hasMany(Booking, { foreignKey: 'flight_id' });
+Seat.hasOne(Booking, { foreignKey: 'seat_id' });
+
 
 const db = {
   sequelize,
@@ -39,7 +47,9 @@ const db = {
   Flight: FlightModelInstance,
   Booking: BookingModelInstance,
   Aircraft: AircraftModelInstance,
+  Seat: SeatModelInstance,
+  Customer: CustomerModelInstance
 };
 
 export default db;
-export { User, Flight, Booking, Aircraft };
+export { User, Flight, Booking, Aircraft, Seat, Customer };

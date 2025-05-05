@@ -1,6 +1,8 @@
 import { Request, Response } from 'express';
 import { Booking } from '../models/booking.model';
 import { Flight } from '../models/flight.model';
+import { Seat } from '../models/seat.model';
+import { Customer } from '../models/customer.model';
 
 export const createBooking = async (req: Request, res: Response) => {
   try {
@@ -90,3 +92,26 @@ export const deleteBooking = async (req: Request, res: Response) => {
   }
 };
 
+
+export const getBookingDetails = async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params;
+
+    const booking = await Booking.findByPk(id, {
+      include: [
+        { model: Flight },
+        { model: Seat },
+        { model: Customer }
+      ]
+    });
+
+    if (!booking) {
+      return res.status(404).json({ message: 'Không tìm thấy booking.' });
+    }
+
+    res.status(200).json(booking);
+  } catch (error) {
+    console.error('Lỗi khi lấy chi tiết booking:', error);
+    res.status(500).json({ message: 'Lỗi máy chủ nội bộ.' });
+  }
+};

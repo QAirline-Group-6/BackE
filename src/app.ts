@@ -12,12 +12,17 @@ app.use(express.json());
 import flightRoutes from './api/routes/flights.routes'
 import userRoutes from './api/routes/users.routes';
 import bookingRoutes from './api/routes/booking.routes';
-import aircraftRoutes from './api/routes/aircraft.routes'
+import aircraftRoutes from './api/routes/aircraft.routes';
+import seatRoutes from './api/routes/seat.routes';
+import customerRoutes from './api/routes/customer.routes';
 
 // Use the routes with correct URL paths
-app.use('/api/flights', flightRoutes);
-app.use('/api/users', userRoutes);
-app.use('/api/bookings', bookingRoutes);
-app.use('/api/aircrafts', aircraftRoutes);
+app.use('/flights', flightRoutes);
+app.use('/users', userRoutes);
+app.use('/bookings', bookingRoutes);
+app.use('/aircrafts', aircraftRoutes);
+app.use('/seats', seatRoutes);
+app.use('/customers', customerRoutes);
+
 
 export default app;
