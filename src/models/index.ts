@@ -34,8 +34,9 @@ const CustomerModelInstance = CustomerModel(sequelize);
 // Khai báo quan hệ
 Booking.belongsTo(Flight, { foreignKey: 'flight_id' });
 Booking.belongsTo(Seat, { foreignKey: 'seat_id' });
+Booking.belongsTo(Customer, { foreignKey: 'customer_id' });
 
-
+Customer.hasMany(Booking, { foreignKey: 'customer_id' });
 Flight.hasMany(Booking, { foreignKey: 'flight_id' });
 Seat.hasOne(Booking, { foreignKey: 'seat_id' });
 

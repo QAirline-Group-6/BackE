@@ -93,7 +93,7 @@ export const loginUser = async (req: Request, res: Response) => {
     const token = jwt.sign(
       { user_id: user.user_id, role: user.role },
       process.env.JWT_SECRET || 'your-secret-key',
-      { expiresIn: '1h' }
+      { expiresIn: '72h' }
     );
 
     res.status(200).json({ message: 'Đăng nhập thành công', token });

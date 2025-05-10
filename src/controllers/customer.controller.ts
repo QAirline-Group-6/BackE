@@ -1,5 +1,8 @@
 import { Request, Response } from 'express';
 import { Customer } from '../models/customer.model';
+import { Booking } from '../models/booking.model';
+import { Flight } from '../models/flight.model';
+import { Seat } from '../models/seat.model';
 
 // Tạo customer
 export const createCustomer = async (req: Request, res: Response) => {
@@ -71,6 +74,43 @@ export const deleteCustomer = async (req: Request, res: Response) => {
     res.status(200).json({ message: 'Customer deleted successfully' });
   } catch (error) {
     console.error('Error deleting customer:', error);
+    res.status(500).json({ message: 'Internal server error' });
+  }
+};
+
+// Lấy lịch sử booking của Customers
+exports.getCustomerBookings = async (req: Request, res: Response) => {
+  try {
+    const customerId = req.params.id;
+
+    const customer = await Customer.findByPk(customerId);
+    if (!customer) {
+      return res.status(404).json({ message: 'Customer not found' });
+    }
+
+    const bookings = await Booking.findAll({
+      where: { customer_id: customerId },
+      include: [
+        {
+          model: Flight,
+          attributes: ['flight_id', 'departure', 'destination', 'departure_time', 'arrival_time']
+        },
+        {
+          model: Seat,
+          attributes: ['seat_number', 'seat_class']
+        }
+      ],
+      order: [['booking_time', 'DESC']]
+    });
+
+    res.json({
+      customer_id: customer.customer_id,
+      full_name: `${customer.last_name} ${customer.first_name}`,
+      bookings
+    });
+
+  } catch (error) {
+    console.error('Error fetching bookings:', error);
     res.status(500).json({ message: 'Internal server error' });
   }
 };

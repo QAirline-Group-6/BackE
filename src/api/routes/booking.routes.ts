@@ -1,13 +1,16 @@
 import express from 'express'
+
 const router = express.Router();
 const bookingController = require('../../controllers/bookings.controller');
-const authMiddleware = require('../middlewares/auth.middleware')
+const authMiddleware = require('../middlewares/auth.middleware');
+const validationMiddleware = require('../middlewares/validation.middleware'); 
+const bookingTypes = require('../../validations/booking.types');
 
 // Đặt vé (khách)
-router.post('/book', bookingController.createBooking);
+router.post('/book', validationMiddleware.validateBody(bookingTypes.createBookingSchema), bookingController.createBooking);
 
 // Lấy tất cả booking
-router.get('/', authMiddleware.authenticateToken, authMiddleware.authorizeRoles('admin'), bookingController.getAllBookings);
+router.get('/', authMiddleware.authenticateToken,   authMiddleware.authorizeRoles('admin'), bookingController.getAllBookings);
 
 // Lấy booking theo ID
 router.get('/:id', authMiddleware.authenticateToken, authMiddleware.authorizeRoles('admin'), bookingController.getBookingById);
