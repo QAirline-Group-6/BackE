@@ -79,8 +79,8 @@ export const deleteFlight = async (req: Request, res: Response): Promise<void> =
 
 export const searchFlights = async (req: Request, res: Response) => {
   try {
-    const from = (req.query.departure as string)?.toLowerCase();
-    const to = (req.query.destination as string)?.toLowerCase();
+    const from = req.query.from as string;
+    const to = req.query.to as string;
 
     if (!from || !to) {
       return res.status(400).json({ message: 'Missing departure or destination' });
@@ -88,10 +88,8 @@ export const searchFlights = async (req: Request, res: Response) => {
 
     const flights = await Flight.findAll({
       where: {
-        [Op.and]: [ // Không phân biệt chữ hoa, chữ thường
-          Sequelize.where(Sequelize.fn('LOWER', Sequelize.col('departure')), from),
-          Sequelize.where(Sequelize.fn('LOWER', Sequelize.col('destination')), to),
-        ],
+        departure: from,
+        destination: to,
       },
     });
 
@@ -101,3 +99,4 @@ export const searchFlights = async (req: Request, res: Response) => {
     res.status(500).json({ message: 'Internal server error' });
   }
 };
+

@@ -10,8 +10,8 @@ router.get('/', flightController.getAllFlights);
 // Lấy 5 chuyến bay phổ biến nhất
 router.get('/popular', flightController.getPopularFlights);
 
-// Lấy chuyến bay theo ID
-router.get('/:id', flightController.getFlightById);
+// Lấy chuyến bay theo điểm đi, điểm đến
+router.get('/search', flightController.searchFlights);
 
 // Cập nhật chuyến bay theo ID
 router.put('/update/:id', authMiddleware.authenticateToken, authMiddleware.authorizeRoles('admin'), flightController.updateFlight);
@@ -23,8 +23,8 @@ router.delete('/del/:id', authMiddleware.authenticateToken, authMiddleware.autho
 router.post('/new', authMiddleware.authenticateToken, authMiddleware.authorizeRoles('admin'), flightController.createFlight
 );
 
-// Lấy chuyến bay theo điểm đi và điểm đến
-router.get('/', flightController.searchFlights);
+// Lấy chuyến bay theo ID
+router.get('/:id', flightController.getFlightById);
 
 
 export default router;

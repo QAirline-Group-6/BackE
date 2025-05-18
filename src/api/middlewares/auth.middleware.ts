@@ -23,7 +23,7 @@ export const authenticateToken = (req: AuthRequest, res: Response, next: NextFun
 export const authorizeRoles = (...roles: string[]) => {
   return (req: AuthRequest, res: Response, next: NextFunction) => {
     if (!roles.includes(req.user?.role)) {
-      return res.status(403).json({ error: 'Access denied' });
+      return res.status(403).json({ error: 'Bạn không phải là admin' });
     }
     next();
   };

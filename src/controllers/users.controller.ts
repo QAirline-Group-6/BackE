@@ -62,16 +62,16 @@ export const registerUser = async (req: Request, res: Response) => {
       return res.status(400).json({ message: 'Email hoặc số điện thoại đã tồn tại' });
     }
 
-    const hashedPassword = await bcrypt.hash(password, 10);
+    const hashedPassword = await bcrypt.hash(password, 10); // mã hóa mật khẩu
 
     const user = await User.create({
       email,
       phone,
       password: hashedPassword,
       role: role || 'customer'
-    });
+    }); // Thêm người dùng vào csdl
 
-    res.status(201).json({ message: 'Đăng ký thành công', user });
+    res.status(201).json({ message: 'Đăng ký thành công', user }); // Gửi phản hồi
   } catch (error) {
     console.error('Lỗi khi đăng ký:', error);
     res.status(500).json({ message: 'Lỗi server' });
@@ -85,16 +85,16 @@ export const loginUser = async (req: Request, res: Response) => {
 
   try {
     const user = await User.findOne({ where: { email } });
-    if (!user) return res.status(404).json({ message: 'Người dùng không tồn tại' });
+    if (!user) return res.status(404).json({ message: 'Người dùng không tồn tại' }); //Kiểm tra có người dùng hay không
 
     const isMatch = await bcrypt.compare(password, user.password);
-    if (!isMatch) return res.status(401).json({ message: 'Mật khẩu không đúng' });
+    if (!isMatch) return res.status(401).json({ message: 'Mật khẩu không đúng' }); // Kiểm ta mật khẩu đúng hay không
 
     const token = jwt.sign(
       { user_id: user.user_id, role: user.role },
       process.env.JWT_SECRET || 'your-secret-key',
       { expiresIn: '72h' }
-    );
+    ); // Tạo jwt token
 
     res.status(200).json({ message: 'Đăng nhập thành công', token });
   } catch (err) {

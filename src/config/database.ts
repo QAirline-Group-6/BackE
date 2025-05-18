@@ -3,7 +3,7 @@ const config = {
   USER: process.env.DB_USER || 'quocanh',
   PASSWORD: process.env.DB_PASSWORD || '',
   DB: process.env.DB_NAME || 'plane',
-  dialect: 'mysql' as const, // Hoặc 'postgres' nếu bạn dùng PostgreSQL
+  dialect: 'mysql' as const, 
   pool: {
     max: 5,
     min: 0,

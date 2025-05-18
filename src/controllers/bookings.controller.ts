@@ -26,10 +26,10 @@ export const createBooking = async (req: Request, res: Response) => {
     });
     flight.available_seats -= 1;
     await flight.save();
-    res.status(201).json({ message: 'Booking created successfully', booking });
+    res.status(201).json({ message: 'Đặt vé thanh công', booking });
   } catch (err) {
     console.error('Error creating booking:', err);
-    res.status(500).json({ message: 'Internal server error' });
+    res.status(500).json({ message: 'Lỗi máy chủ' });
   }
 };
 
@@ -38,7 +38,7 @@ export const getAllBookings = async (req: Request, res: Response) => {
     const bookings = await Booking.findAll();
     res.status(200).json(bookings);
   } catch (error) {
-    console.error('Error fetching bookings:', error);
+    console.error('Không có được thông tin đặt vé:', error);
     res.status(500).json({ message: 'Internal server error' });
   }
 };
@@ -48,12 +48,12 @@ export const getBookingById = async (req: Request, res: Response) => {
     const { id } = req.params;
     const booking = await Booking.findByPk(id);
     if (!booking) {
-      return res.status(404).json({ message: 'Booking not found' });
+      return res.status(404).json({ message: 'Không tìm được thông tin đặt vé' });
     }
     res.status(200).json(booking);
   } catch (error) {
-    console.error('Error fetching booking:', error);
-    res.status(500).json({ message: 'Internal server error' });
+    console.error('Không có được thông tin đặt vé:', error);
+    res.status(500).json({ message: 'Lỗi máy chủ' });
   }
 };
 
@@ -72,7 +72,7 @@ export const updateBooking = async (req: Request, res: Response) => {
   }
 };
 
-export const deleteBooking = async (req: Request, res: Response) => {
+export const cancelBooking = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
     const booking = await Booking.findByPk(id);
@@ -82,10 +82,10 @@ export const deleteBooking = async (req: Request, res: Response) => {
     const flight = await Flight.findByPk(booking.flight_id);
     if (flight) {
       flight.available_seats += 1;
+      booking.status = 'cancelled'
       await flight.save();
     }
-    await booking.destroy();
-    res.status(200).json({ message: 'Booking deleted and seat restored successfully' });
+    res.status(200).json({ message: 'Booking is cancelled' });
   } catch (error) {
     console.error('Error deleting booking:', error);
     res.status(500).json({ message: 'Internal server error' });
