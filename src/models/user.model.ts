@@ -2,6 +2,7 @@ import { Sequelize, DataTypes, Model, Optional } from 'sequelize';
 
 interface UserAttributes {
   user_id: number;
+  username: string;
   email: string;
   phone: string;
   password: string;
@@ -12,6 +13,7 @@ interface UserCreationAttributes extends Optional<UserAttributes, 'user_id' | 'r
 
 export class User extends Model<UserAttributes, UserCreationAttributes> implements UserAttributes {
   public user_id!: number;
+  public username!: string;
   public email!: string;
   public phone!: string;
   public password!: string;
@@ -25,6 +27,11 @@ export default (sequelize: Sequelize) => {
         type: DataTypes.INTEGER,
         primaryKey: true,
         autoIncrement: true
+      },
+      username: {
+        type: DataTypes.STRING,
+        allowNull: false,
+        unique: true
       },
       email: {
         type: DataTypes.STRING,

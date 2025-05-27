@@ -50,7 +50,7 @@ export const deleteUser = async (req: Request, res: Response) => {
 // Đăng ký người dùng
 export const registerUser = async (req: Request, res: Response) => {
   try {
-    const { email, phone, password, role } = req.body;
+    const { username, email, phone, password, role } = req.body;
 
     const existingUser = await User.findOne({
       where: {
@@ -65,6 +65,7 @@ export const registerUser = async (req: Request, res: Response) => {
     const hashedPassword = await bcrypt.hash(password, 10); // mã hóa mật khẩu
 
     const user = await User.create({
+      username,
       email,
       phone,
       password: hashedPassword,
@@ -81,11 +82,11 @@ export const registerUser = async (req: Request, res: Response) => {
 // Đăng nhập người dùng
 export const loginUser = async (req: Request, res: Response) => {
   console.log("BODY:", req.body);
-  const { email, password } = req.body;
+  const { username, password } = req.body;
 
   try {
-    const user = await User.findOne({ where: { email } });
-    if (!user) return res.status(404).json({ message: 'Người dùng không tồn tại' });
+    const user = await User.findOne({ where: { username } });
+    if (!user) return res.status(404).json({ message: 'Người dùng không tồn tại' }); //Kiểm tra có người dùng hay không
 
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) return res.status(401).json({ message: 'Mật khẩu không đúng' });
@@ -112,5 +113,33 @@ export const loginUser = async (req: Request, res: Response) => {
   } catch (err) {
     console.error('Lỗi khi đăng nhập:', err);
     res.status(500).json({ message: 'Lỗi máy chủ' });
+  }
+};
+
+
+// Đổi mật khẩu
+export const resetPassword = async (req: Request, res: Response) => {
+  const { username, password } = req.body;
+
+  if (!username || !password) {
+    return res.status(400).json({ message: 'Lỗi username và mật khẩu' });
+  }
+
+  try {
+    const user = await User.findOne({ where: { username } });
+
+    if (!user) {
+      return res.status(404).json({ message: 'Không thấy người dùng' });
+    }
+
+    const hashedPassword = await bcrypt.hash(password, 10);
+    user.password = hashedPassword;
+
+    await user.save();
+
+    return res.status(200).json({ message: 'Đổi mật khẩu thành công' });
+  } catch (err: any) {
+    console.error('Reset password error:', err);
+    return res.status(500).json({ message: 'Lỗi máy chủ' });
   }
 };
