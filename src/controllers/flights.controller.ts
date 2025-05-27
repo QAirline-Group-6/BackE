@@ -77,6 +77,7 @@ export const deleteFlight = async (req: Request, res: Response): Promise<void> =
   }
 };
 
+// Tìm chuyến bay theo điểm đi và điểm đến
 export const searchFlights = async (req: Request, res: Response) => {
   try {
     const from = req.query.from as string;
