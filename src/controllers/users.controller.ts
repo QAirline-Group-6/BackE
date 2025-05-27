@@ -85,18 +85,30 @@ export const loginUser = async (req: Request, res: Response) => {
 
   try {
     const user = await User.findOne({ where: { email } });
-    if (!user) return res.status(404).json({ message: 'Người dùng không tồn tại' }); //Kiểm tra có người dùng hay không
+    if (!user) return res.status(404).json({ message: 'Người dùng không tồn tại' });
 
     const isMatch = await bcrypt.compare(password, user.password);
-    if (!isMatch) return res.status(401).json({ message: 'Mật khẩu không đúng' }); // Kiểm ta mật khẩu đúng hay không
+    if (!isMatch) return res.status(401).json({ message: 'Mật khẩu không đúng' });
 
     const token = jwt.sign(
       { user_id: user.user_id, role: user.role },
       process.env.JWT_SECRET || 'your-secret-key',
       { expiresIn: '72h' }
-    ); // Tạo jwt token
+    );
 
-    res.status(200).json({ message: 'Đăng nhập thành công', token });
+    // Tạo user object không bao gồm password và fullName
+    const userResponse = {
+      id: user.user_id,
+      email: user.email,
+      phone: user.phone,
+      role: user.role
+    };
+
+    res.status(200).json({
+      message: 'Đăng nhập thành công',
+      token,
+      user: userResponse
+    });
   } catch (err) {
     console.error('Lỗi khi đăng nhập:', err);
     res.status(500).json({ message: 'Lỗi máy chủ' });
