@@ -82,10 +82,10 @@ export const registerUser = async (req: Request, res: Response) => {
 // Đăng nhập người dùng
 export const loginUser = async (req: Request, res: Response) => {
   console.log("BODY:", req.body);
-  const { username, password } = req.body;
+  const { email, password } = req.body;
 
   try {
-    const user = await User.findOne({ where: { username } });
+    const user = await User.findOne({ where: { email } });
     if (!user) return res.status(404).json({ message: 'Người dùng không tồn tại' }); //Kiểm tra có người dùng hay không
 
     const isMatch = await bcrypt.compare(password, user.password);

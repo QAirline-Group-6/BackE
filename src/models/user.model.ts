@@ -9,7 +9,7 @@ interface UserAttributes {
   role: 'customer' | 'admin';
 }
 
-interface UserCreationAttributes extends Optional<UserAttributes, 'user_id' | 'role'> {}
+interface UserCreationAttributes extends Optional<UserAttributes, 'user_id' | 'role'> { }
 
 export class User extends Model<UserAttributes, UserCreationAttributes> implements UserAttributes {
   public user_id!: number;
@@ -30,7 +30,7 @@ export default (sequelize: Sequelize) => {
       },
       username: {
         type: DataTypes.STRING,
-        allowNull: false,
+        allowNull: true,
         unique: true
       },
       email: {
