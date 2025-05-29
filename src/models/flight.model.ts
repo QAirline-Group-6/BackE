@@ -8,12 +8,13 @@ interface FlightAttributes {
   destination: string;
   departure_time: Date;
   arrival_time: Date;
-  price: number;
+  price_economy: number;
+  price_business: number;
   available_seats: number;
   status: 'scheduled' | 'delayed' | 'cancelled' | 'in_air' | 'landed';
 }
 
-interface FlightCreationAttributes extends Optional<FlightAttributes, 'flight_id'> {}
+interface FlightCreationAttributes extends Optional<FlightAttributes, 'flight_id'> { }
 
 export class Flight extends Model<FlightAttributes, FlightCreationAttributes> implements FlightAttributes {
   public flight_id!: number;
@@ -23,7 +24,8 @@ export class Flight extends Model<FlightAttributes, FlightCreationAttributes> im
   public destination!: string;
   public departure_time!: Date;
   public arrival_time!: Date;
-  public price!: number;
+  public price_economy!: number;
+  public price_business!: number;
   public available_seats!: number;
   public status!: 'scheduled' | 'delayed' | 'cancelled' | 'in_air' | 'landed';
 }
@@ -61,8 +63,12 @@ export default (sequelize: Sequelize) => {
         type: DataTypes.DATE,
         allowNull: false,
       },
-      price: {
-        type: DataTypes.DECIMAL,
+      price_economy: {
+        type: DataTypes.DECIMAL(10, 0),
+        allowNull: false,
+      },
+      price_business: {
+        type: DataTypes.DECIMAL(10, 0),
         allowNull: false,
       },
       available_seats: {

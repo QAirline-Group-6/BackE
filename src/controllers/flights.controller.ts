@@ -77,6 +77,7 @@ export const deleteFlight = async (req: Request, res: Response): Promise<void> =
   }
 };
 
+// tìm chuyến bay thời gian đi và về
 export const searchFlights = async (req: Request, res: Response) => {
   try {
     const from = req.query.from as string;
