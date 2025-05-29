@@ -117,16 +117,16 @@ export const loginUser = async (req: Request, res: Response) => {
 };
 
 
-// Đổi mật khẩu
+// Cập nhập mật khẩu
 export const resetPassword = async (req: Request, res: Response) => {
-  const { username, password } = req.body;
+  const { email, password } = req.body;
 
-  if (!username || !password) {
-    return res.status(400).json({ message: 'Lỗi username và mật khẩu' });
+  if (!email || !password) {
+    return res.status(400).json({ message: 'Lỗi email và mật khẩu' });
   }
 
   try {
-    const user = await User.findOne({ where: { username } });
+    const user = await User.findOne({ where: { email } });
 
     if (!user) {
       return res.status(404).json({ message: 'Không thấy người dùng' });
