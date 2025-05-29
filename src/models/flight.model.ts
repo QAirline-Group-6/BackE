@@ -14,7 +14,7 @@ interface FlightAttributes {
   status: 'scheduled' | 'delayed' | 'cancelled' | 'in_air' | 'landed';
 }
 
-interface FlightCreationAttributes extends Optional<FlightAttributes, 'flight_id'> {}
+interface FlightCreationAttributes extends Optional<FlightAttributes, 'flight_id'> { }
 
 export class Flight extends Model<FlightAttributes, FlightCreationAttributes> implements FlightAttributes {
   public flight_id!: number;
@@ -64,11 +64,11 @@ export default (sequelize: Sequelize) => {
         allowNull: false,
       },
       price_economy: {
-        type: DataTypes.DECIMAL,
+        type: DataTypes.DECIMAL(10, 0),
         allowNull: false,
       },
       price_business: {
-        type: DataTypes.DECIMAL,
+        type: DataTypes.DECIMAL(10, 0),
         allowNull: false,
       },
       available_seats: {

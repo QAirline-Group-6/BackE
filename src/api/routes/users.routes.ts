@@ -7,7 +7,7 @@ const authMiddleware = require('../middlewares/auth.middleware')
 router.get('/', authMiddleware.authenticateToken, authMiddleware.authorizeRoles('admin'), userController.getAllUsers);
 
 // Lấy người dùng theo ID
-router.get('/:id', authMiddleware.authenticateToken, authMiddleware.authorizeRoles('admin'),  userController.getUserById);
+router.get('/:id', authMiddleware.authenticateToken, userController.getUserById);
 
 // Cập nhật người dùng(chọn ID)
 router.put('/put/:id', authMiddleware.authenticateToken, authMiddleware.authorizeRoles('admin'),  userController.updateUser);

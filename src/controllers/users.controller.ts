@@ -118,7 +118,7 @@ export const loginUser = async (req: Request, res: Response) => {
 };
 
 
-// Đổi mật khẩu
+// Cập nhập mật khẩu
 export const resetPassword = async (req: Request, res: Response) => {
   const { email, password } = req.body;
 
