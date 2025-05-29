@@ -4,13 +4,13 @@ const userController = require('../../controllers/users.controller');
 const authMiddleware = require('../middlewares/auth.middleware')
 
 // Lấy tất cả người dùng
-router.get('/',authMiddleware.authenticateToken, authMiddleware.authorizeRoles('admin'), userController.getAllUsers);
+router.get('/', authMiddleware.authenticateToken, authMiddleware.authorizeRoles('admin'), userController.getAllUsers);
 
 // Lấy người dùng theo ID
 router.get('/:id', authMiddleware.authenticateToken, authMiddleware.authorizeRoles('admin'),  userController.getUserById);
 
 // Cập nhật người dùng(chọn ID)
-router.put('/put/:id', authMiddleware.authenticateToken, userController.updateUser);
+router.put('/put/:id', authMiddleware.authenticateToken, authMiddleware.authorizeRoles('admin'),  userController.updateUser);
 
 // Xoá người dùng
 router.delete('/del/:id', authMiddleware.authenticateToken, authMiddleware.authorizeRoles('admin'), userController.deleteUser);
@@ -22,6 +22,6 @@ router.post('/register', userController.registerUser);
 router.post('/login', userController.loginUser);
 
 // Đổi mật khẩu(cho khách)
-router.post('/resetPassword', userController.resetPassword);
+router.post('/resetPassword', authMiddleware.authenticateToken,  userController.resetPassword);
 
 export default router

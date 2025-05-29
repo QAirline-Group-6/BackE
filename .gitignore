@@ -60,3 +60,12 @@ coverage/
 
 # Yarn Integrity file
 .yarn-integrity 
+
+# utils folder
+utils
+
+env.ts
+logging.ts
+api.txt
+QuocAnh.session.sql
+jest.config.js

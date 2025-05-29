@@ -31,7 +31,6 @@ export default (sequelize: Sequelize) => {
       seat_number: {
         type: DataTypes.STRING,
         allowNull: false,
-        unique: true, // sẽ bị ghi đè nếu không kết hợp với aircraft_id
       },
       seat_class: {
         type: DataTypes.ENUM('economy', 'business'),
@@ -42,12 +41,6 @@ export default (sequelize: Sequelize) => {
       sequelize,
       tableName: 'seats',
       timestamps: false,
-      indexes: [
-        {
-          unique: true,
-          fields: ['aircraft_id', 'seat_number'], // đảm bảo không trùng ghế trong cùng 1 máy bay
-        },
-      ],
     }
   );
 

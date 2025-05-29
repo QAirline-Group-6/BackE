@@ -17,7 +17,7 @@ router.get('/search', flightController.searchFlights);
 router.put('/update/:id', authMiddleware.authenticateToken, authMiddleware.authorizeRoles('admin'), flightController.updateFlight);
 
 // Xoá chuyến bay theo ID
-router.delete('/del/:id', authMiddleware.authenticateToken, authMiddleware.authorizeRoles('admin'), flightController.deleteFlight);
+router.delete('/del/:id',  flightController.deleteFlight);
 
 // Tạo chuyến bay (Khi user là admin)
 router.post('/new', authMiddleware.authenticateToken, authMiddleware.authorizeRoles('admin'), flightController.createFlight
@@ -26,5 +26,7 @@ router.post('/new', authMiddleware.authenticateToken, authMiddleware.authorizeRo
 // Lấy chuyến bay theo ID
 router.get('/:id', flightController.getFlightById);
 
+// Lọc chuyến bay theo giá
+router.get('/search', flightController.searchFlightsByPrice);
 
 export default router;
