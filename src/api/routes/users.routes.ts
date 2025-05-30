@@ -10,7 +10,7 @@ router.get('/', authMiddleware.authenticateToken, authMiddleware.authorizeRoles(
 router.get('/:id', authMiddleware.authenticateToken, userController.getUserById);
 
 // Cập nhật người dùng(chọn ID)
-router.put('/put/:id', authMiddleware.authenticateToken, authMiddleware.authorizeRoles('admin'),  userController.updateUser);
+router.put('/put/:id', userController.updateUser);
 
 // Xoá người dùng
 router.delete('/del/:id', authMiddleware.authenticateToken, authMiddleware.authorizeRoles('admin'), userController.deleteUser);
