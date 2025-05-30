@@ -6,7 +6,7 @@ import db from './models';
 // Load environment variables
 dotenv.config();
 
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 4000;
 
 // Sync DB and start the server
 db.sequelize.sync()
