@@ -6,8 +6,9 @@ import UserModel, { User } from './user.model';
 import FlightModel, { Flight } from './flight.model';
 import BookingModel, { Booking } from './booking.model';
 import AircraftModel, { Aircraft } from './aircraft.model';
-import SeatModel, { Seat } from './seat.model';
-import CustomerModel, { Customer } from './customer.model';
+import SeatModel, {Seat} from './seat.model';
+import CustomerModel, {Customer} from './customer.model';
+import AirportModel , {Airport} from './airport.model';
 
 dotenv.config();
 
@@ -31,6 +32,7 @@ const BookingModelInstance = BookingModel(sequelize);
 const AircraftModelInstance = AircraftModel(sequelize);
 const SeatModelInstance = SeatModel(sequelize);
 const CustomerModelInstance = CustomerModel(sequelize);
+const AirportModelInstance = AirportModel(sequelize);
 
 // Khai báo quan hệ
 Booking.belongsTo(Flight, { foreignKey: 'flight_id' });
@@ -50,8 +52,9 @@ const db = {
   Booking: BookingModelInstance,
   Aircraft: AircraftModelInstance,
   Seat: SeatModelInstance,
-  Customer: CustomerModelInstance
+  Customer: CustomerModelInstance,
+  Airport: AirportModelInstance,
 };
 
 export default db;
-export { User, Flight, Booking, Aircraft, Seat, Customer };
+export { User, Flight, Booking, Aircraft, Seat, Customer, Airport };

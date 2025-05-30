@@ -4,8 +4,8 @@ interface FlightAttributes {
   flight_id: number;
   aircraft_id: number;
   flight_number: string;
-  departure: string;
-  destination: string;
+  departure_airport_id: number;
+  destination_airport_id: number;
   departure_time: Date;
   arrival_time: Date;
   price_economy: number;
@@ -20,8 +20,8 @@ export class Flight extends Model<FlightAttributes, FlightCreationAttributes> im
   public flight_id!: number;
   public aircraft_id!: number;
   public flight_number!: string;
-  public departure!: string;
-  public destination!: string;
+  public departure_airport_id!: number;
+  public destination_airport_id!: number;
   public departure_time!: Date;
   public arrival_time!: Date;
   public price_economy!: number;
@@ -47,12 +47,12 @@ export default (sequelize: Sequelize) => {
         allowNull: false,
         unique: true,
       },
-      departure: {
-        type: DataTypes.STRING,
+      departure_airport_id: {
+        type: DataTypes.INTEGER,
         allowNull: false,
       },
-      destination: {
-        type: DataTypes.STRING,
+      destination_airport_id: {
+        type: DataTypes.INTEGER,
         allowNull: false,
       },
       departure_time: {

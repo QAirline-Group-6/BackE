@@ -100,6 +100,7 @@ export const loginUser = async (req: Request, res: Response) => {
     // Tạo user object không bao gồm password và fullName
     const userResponse = {
       id: user.user_id,
+      username: user.username,
       email: user.email,
       phone: user.phone,
       role: user.role
