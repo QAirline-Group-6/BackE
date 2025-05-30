@@ -77,65 +77,58 @@ export const deleteFlight = async (req: Request, res: Response): Promise<void> =
   }
 };
 
-// tìm chuyến bay thời gian đi và về
-export const searchFlights = async (req: Request, res: Response) => {
+export const searchFlightsByDes = async (req: Request, res: Response): Promise<void> => {
   try {
     const from = req.query.from as string;
     const to = req.query.to as string;
 
     if (!from || !to) {
-      return res.status(400).json({ message: 'Missing departure or destination' });
+      res.status(400).json({ message: 'Missing departure or destination airport ID' });
+      return;
     }
 
     const flights = await Flight.findAll({
       where: {
-        departure_airport_id: from,
-        destination_airport_id: to,
+        departure_airport_id: parseInt(from),
+        destination_airport_id: parseInt(to),
       },
     });
 
     res.status(200).json(flights);
-  } catch (error) {
+  } catch (error: any) {
     console.error('Error searching flights:', error);
     res.status(500).json({ message: 'Internal server error' });
   }
 };
 
 
-export const searchFlightsByPrice = async (req: Request, res: Response) => {
+export const searchFlightsByPrice = async (req: Request, res: Response): Promise<void> => {
   try {
-    const { minPrice, maxPrice } = req.query;
+    const minPrice = req.query.minPrice ? parseFloat(req.query.minPrice as string) : undefined;
+    const maxPrice = req.query.maxPrice ? parseFloat(req.query.maxPrice as string) : undefined;
 
-    // Parse giá trị từ query (có thể là string nên cần ép kiểu số)
-    const min = minPrice ? parseFloat(minPrice as string) : undefined;
-    const max = maxPrice ? parseFloat(maxPrice as string) : undefined;
-
-    if (min !== undefined && isNaN(min)) {
-      return res.status(400).json({ message: 'minPrice must be a number' });
+    if ((minPrice && isNaN(minPrice)) || (maxPrice && isNaN(maxPrice))) {
+      res.status(400).json({ message: 'Giá trị không hợp lệ' });
+      return;
     }
 
-    if (max !== undefined && isNaN(max)) {
-      return res.status(400).json({ message: 'maxPrice must be a number' });
+    const whereClause: any = {};
+
+    if (minPrice !== undefined && maxPrice !== undefined) {
+      whereClause.price_economy = { [Op.between]: [minPrice, maxPrice] };
+    } else if (minPrice !== undefined) {
+      whereClause.price_economy = { [Op.gte]: minPrice };
+    } else if (maxPrice !== undefined) {
+      whereClause.price_economy = { [Op.lte]: maxPrice };
     }
 
-    const whereClause: any = {
-      status: 'scheduled', // Chỉ tìm chuyến chưa bay hoặc chưa hủy
-    };
+    const flights = await Flight.findAll({
+      where: whereClause,
+    });
 
-    // Thêm điều kiện lọc theo giá economy
-    if (min !== undefined && max !== undefined) {
-      whereClause.price_economy = { [Op.between]: [min, max] };
-    } else if (min !== undefined) {
-      whereClause.price_economy = { [Op.gte]: min };
-    } else if (max !== undefined) {
-      whereClause.price_economy = { [Op.lte]: max };
-    }
-
-    const flights = await Flight.findAll({ where: whereClause });
-
-    return res.status(200).json({ flights });
+    res.status(200).json(flights);
   } catch (error: any) {
-    console.error('Error searching flights:', error);
-    return res.status(500).json({ message: 'Internal server error' });
+    console.error('Lỗi tìm chuyến bay theo giá:', error);
+    res.status(500).json({ message: 'Lỗi server' });
   }
 };
