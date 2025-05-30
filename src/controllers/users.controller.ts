@@ -143,3 +143,41 @@ export const resetPassword = async (req: Request, res: Response) => {
     return res.status(500).json({ message: 'Lỗi máy chủ' });
   }
 };
+
+// Lấy thông tin user từ token
+export const getCurrentUser = async (req: Request, res: Response) => {
+  try {
+    // Lấy user_id từ token đã được decode trong middleware
+    const userId = (req as any).user?.user_id;
+
+    if (!userId) {
+      return res.status(401).json({
+        success: false,
+        message: 'Không tìm thấy thông tin người dùng'
+      });
+    }
+
+    const user = await User.findByPk(userId, {
+      attributes: { exclude: ['password'] }
+    });
+
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: 'Không tìm thấy người dùng'
+      });
+    }
+
+    res.json({
+      success: true,
+      data: user
+    });
+  } catch (err: any) {
+    console.error('Error in getCurrentUser:', err);
+    res.status(500).json({
+      success: false,
+      message: 'Lỗi máy chủ',
+      error: err.message
+    });
+  }
+};
