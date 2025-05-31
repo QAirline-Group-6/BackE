@@ -8,7 +8,7 @@ interface AirportAttributes {
     country: string;
 }
 
-interface AirportCreationAttributes extends Optional<AirportAttributes, "airport_id"> {}  
+interface AirportCreationAttributes extends Optional<AirportAttributes, "airport_id"> { }
 
 
 export class Airport extends Model<AirportAttributes, AirportCreationAttributes> implements AirportAttributes {
@@ -18,7 +18,7 @@ export class Airport extends Model<AirportAttributes, AirportCreationAttributes>
     public city!: string;
     public country!: string;
 }
-export default(sequelize: Sequelize) => {
+export default (sequelize: Sequelize) => {
     Airport.init(
         {
             airport_id: {
@@ -36,17 +36,17 @@ export default(sequelize: Sequelize) => {
                 allowNull: false,
             },
             city: {
-                type: DataTypes.INTEGER,
+                type: DataTypes.STRING,
                 allowNull: false,
             },
             country: {
-                type: DataTypes.INTEGER,
+                type: DataTypes.STRING,
                 allowNull: false,
             }
         },
         {
             sequelize,
-            tableName: 'aircrafts',
+            tableName: 'airports',
             timestamps: false,
         }
     );
