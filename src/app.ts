@@ -15,6 +15,7 @@ import bookingRoutes from './api/routes/booking.routes';
 import aircraftRoutes from './api/routes/aircraft.routes';
 import seatRoutes from './api/routes/seat.routes';
 import customerRoutes from './api/routes/customer.routes';
+import airportRoutes from './api/routes/airports.routes';
 
 // Use the routes with correct URL paths
 app.use('/flights', flightRoutes);
@@ -23,6 +24,7 @@ app.use('/bookings', bookingRoutes);
 app.use('/aircrafts', aircraftRoutes);
 app.use('/seats', seatRoutes);
 app.use('/customers', customerRoutes);
+app.use('/airports', airportRoutes);
 
 
 export default app;
