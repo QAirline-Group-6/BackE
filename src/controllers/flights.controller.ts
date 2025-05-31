@@ -6,7 +6,12 @@ const Flight = db.Flight;
 
 export const getAllFlights = async (req: Request, res: Response): Promise<void> => {
   try {
-    const flights = await Flight.findAll();
+    const flights = await Flight.findAll({
+      include: [
+        { model: db.Airport, as: 'departureAirport', attributes: ['airport_id', 'name', 'code'] },
+        { model: db.Airport, as: 'destinationAirport', attributes: ['airport_id', 'name', 'code'] }
+      ]
+    });
     res.json(flights);
   } catch (err: any) {
     res.status(500).json({ error: err.message });
@@ -16,6 +21,10 @@ export const getAllFlights = async (req: Request, res: Response): Promise<void> 
 export const getPopularFlights = async (req: Request, res: Response): Promise<void> => {
   try {
     const flights = await Flight.findAll({
+      include: [
+        { model: db.Airport, as: 'departureAirport', attributes: ['airport_id', 'name', 'code'] },
+        { model: db.Airport, as: 'destinationAirport', attributes: ['airport_id', 'name', 'code'] }
+      ],
       order: [['bookings', 'DESC']],
       limit: 5
     });
@@ -127,6 +136,10 @@ export const searchFlightsByDes = async (req: Request, res: Response): Promise<v
     };
 
     const flights = await Flight.findAll({
+      include: [
+        { model: db.Airport, as: 'departureAirport', attributes: ['airport_id', 'name', 'code'] },
+        { model: db.Airport, as: 'destinationAirport', attributes: ['airport_id', 'name', 'code'] }
+      ],
       where: whereConditions,
       order: [['departure_time', 'ASC']], // Sắp xếp theo giờ khởi hành
       attributes: [
@@ -145,21 +158,29 @@ export const searchFlightsByDes = async (req: Request, res: Response): Promise<v
 
     // Format response
     const formattedFlights = flights.map((flight: any) => ({
-      flight_id: flight.flight_id,
-      flight_number: flight.flight_number,
-      departure_time: flight.departure_time,
-      arrival_time: flight.arrival_time,
-      available_seats: flight.available_seats,
-      status: flight.status,
-      prices: {
-        economy: flight.price_economy,
-        business: flight.price_business
-      },
-      route: {
-        from: flight.departure_airport_id,
-        to: flight.destination_airport_id
-      }
-    }));
+        flight_id: flight.flight_id,
+        flight_number: flight.flight_number,
+        departure_time: flight.departure_time,
+        arrival_time: flight.arrival_time,
+        available_seats: flight.available_seats,
+        status: flight.status,
+        prices: {
+          economy: flight.price_economy,
+          business: flight.price_business
+        },
+        route: {
+          from: {
+            id: flight.departure_airport_id,
+            name: flight.departureAirport?.name,
+            code: flight.departureAirport?.code
+          },
+        to: {
+            id: flight.destination_airport_id,
+            name: flight.destinationAirport?.name,
+            code: flight.destinationAirport?.code
+    }
+  }
+}));
 
     res.status(200).json({
       success: true,
@@ -195,6 +216,10 @@ export const searchFlightsByDesAlternative = async (req: Request, res: Response)
 
     // Sử dụng Sequelize.fn để so sánh chỉ phần DATE
     const flights = await Flight.findAll({
+      include: [
+        { model: db.Airport, as: 'departureAirport', attributes: ['airport_id', 'name', 'code'] },
+        { model: db.Airport, as: 'destinationAirport', attributes: ['airport_id', 'name', 'code'] }
+      ],
       where: {
         departure_airport_id: parseInt(from),
         destination_airport_id: parseInt(to),

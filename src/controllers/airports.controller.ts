@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import { Airport } from '../models/airports.model';
+import { Airport } from '../models/airport.model';
 import { Op } from 'sequelize';
 
 // Lấy tất cả sân bay

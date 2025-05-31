@@ -38,10 +38,14 @@ const AirportModelInstance = AirportModel(sequelize);
 Booking.belongsTo(Flight, { foreignKey: 'flight_id' });
 Booking.belongsTo(Seat, { foreignKey: 'seat_id' });
 Booking.belongsTo(Customer, { foreignKey: 'customer_id' });
+Flight.belongsTo(Airport, { foreignKey: 'departure_airport_id', as: 'departureAirport' });
+Flight.belongsTo(Airport, { foreignKey: 'destination_airport_id', as: 'destinationAirport'});
 
 Customer.hasMany(Booking, { foreignKey: 'customer_id' });
 Flight.hasMany(Booking, { foreignKey: 'flight_id' });
 Seat.hasOne(Booking, { foreignKey: 'seat_id' });
+Airport.hasMany(Flight, { foreignKey: 'departure_airport_id', as: 'DepartingFlights'});
+Airport.hasMany(Flight, { foreignKey: 'destination_airport_id', as: 'ArrivingFlights'});
 
 
 const db = {
