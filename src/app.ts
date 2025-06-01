@@ -5,7 +5,13 @@ import cors from 'cors';
 // Initialize the app with proper typing
 const app: Express = express();
 
-app.use(cors());
+// Configure CORS
+app.use(cors({
+    origin: ['http://localhost:3002', 'http://localhost:3000'],
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization']
+}));
+
 app.use(express.json());
 
 // Import routes with proper typing
@@ -25,6 +31,5 @@ app.use('/aircrafts', aircraftRoutes);
 app.use('/seats', seatRoutes);
 app.use('/customers', customerRoutes);
 app.use('/airports', airportRoutes);
-
 
 export default app;
