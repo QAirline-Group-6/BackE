@@ -88,51 +88,60 @@ export const deleteFlight = async (req: Request, res: Response): Promise<void> =
 
 export const searchFlightsByDes = async (req: Request, res: Response): Promise<void> => {
   try {
-    const from = req.query.from as string;
-    const to = req.query.to as string;
-    const departureDate = req.query.departureDate as string;
+    const fromAirport = decodeURIComponent(req.query.fromAirport as string);
+    const toAirport = decodeURIComponent(req.query.toAirport as string);
+    const departureDate = decodeURIComponent(req.query.departureDate as string);
+    const tripType = req.query.tripType as string;
+    const passengerCount = parseInt(req.query.passengerCount as string) || 1;
+    const returnDate = req.query.returnDate ? decodeURIComponent(req.query.returnDate as string) : undefined;
 
     // Validate required parameters
-    if (!from || !to || !departureDate) {
+    if (!fromAirport || !toAirport || !departureDate) {
       res.status(400).json({
+        success: false,
         message: 'Thiếu thông tin điểm đi, điểm đến hoặc ngày đi',
-        required: 'from, to, departureDate (format: YYYY-MM-DD)'
+        required: 'fromAirport, toAirport, departureDate (format: YYYY-MM-DD)'
       });
       return;
     }
 
     // Validate date format
-    const dateRegex = /^\d{4}-\d{2}-\d{2}$/;
+    const dateRegex = /^\d{4}-\d{2}-\d{2}/;
     if (!dateRegex.test(departureDate)) {
       res.status(400).json({
+        success: false,
         message: 'Định dạng ngày không hợp lệ. Sử dụng YYYY-MM-DD',
         example: '2025-06-11'
       });
       return;
     }
 
-    // Validate airport IDs
-    const fromId = parseInt(from);
-    const toId = parseInt(to);
+    // Find airports by their codes
+    const fromAirportData = await db.Airport.findOne({ where: { code: fromAirport } });
+    const toAirportData = await db.Airport.findOne({ where: { code: toAirport } });
 
-    if (isNaN(fromId) || isNaN(toId)) {
+    if (!fromAirportData || !toAirportData) {
       res.status(400).json({
-        message: 'ID sân bay không hợp lệ'
+        success: false,
+        message: 'Không tìm thấy sân bay'
       });
       return;
     }
 
     // Create date range for the entire day
-    const startDateTime = `${departureDate} 00:00:00`;
-    const endDateTime = `${departureDate} 23:59:59`;
+    const startDateTime = `${departureDate.split('T')[0]} 00:00:00`;
+    const endDateTime = `${departureDate.split('T')[0]} 23:59:59`;
 
     let whereConditions: any = {
-      departure_airport_id: fromId,
-      destination_airport_id: toId,
+      departure_airport_id: fromAirportData.airport_id,
+      destination_airport_id: toAirportData.airport_id,
       departure_time: {
         [Op.between]: [startDateTime, endDateTime]
       },
-      status: 'scheduled' // Chỉ lấy chuyến bay đang được lên lịch
+      status: 'scheduled',
+      available_seats: {
+        [Op.gte]: passengerCount
+      }
     };
 
     const flights = await Flight.findAll({
@@ -141,7 +150,7 @@ export const searchFlightsByDes = async (req: Request, res: Response): Promise<v
         { model: db.Airport, as: 'destinationAirport', attributes: ['airport_id', 'name', 'code'] }
       ],
       where: whereConditions,
-      order: [['departure_time', 'ASC']], // Sắp xếp theo giờ khởi hành
+      order: [['departure_time', 'ASC']],
       attributes: [
         'flight_id',
         'flight_number',
@@ -156,50 +165,79 @@ export const searchFlightsByDes = async (req: Request, res: Response): Promise<v
       ]
     });
 
-    // Format response
+    // Format response to match frontend expectations
     const formattedFlights = flights.map((flight: any) => ({
-        flight_id: flight.flight_id,
-        flight_number: flight.flight_number,
-        departure_time: flight.departure_time,
-        arrival_time: flight.arrival_time,
-        available_seats: flight.available_seats,
-        status: flight.status,
-        prices: {
-          economy: flight.price_economy,
-          business: flight.price_business
-        },
-        route: {
-          from: {
-            id: flight.departure_airport_id,
-            name: flight.departureAirport?.name,
-            code: flight.departureAirport?.code
-          },
-        to: {
-            id: flight.destination_airport_id,
-            name: flight.destinationAirport?.name,
-            code: flight.destinationAirport?.code
-    }
-  }
-}));
+      id: flight.flight_id.toString(),
+      flight_id: flight.flight_id,
+      flight_number: flight.flight_number,
+      departure: {
+        airport: flight.departureAirport?.name || '',
+        code: flight.departureAirport?.code || '',
+        time: new Date(flight.departure_time).toLocaleTimeString('vi-VN', {
+          hour: '2-digit',
+          minute: '2-digit'
+        })
+      },
+      arrival: {
+        airport: flight.destinationAirport?.name || '',
+        code: flight.destinationAirport?.code || '',
+        time: new Date(flight.arrival_time).toLocaleTimeString('vi-VN', {
+          hour: '2-digit',
+          minute: '2-digit'
+        })
+      },
+      departure_time: flight.departure_time,
+      arrival_time: flight.arrival_time,
+      duration: calculateDuration(flight.departure_time, flight.arrival_time),
+      price: {
+        economy: parseInt(flight.price_economy),
+        business: parseInt(flight.price_business)
+      },
+      prices: {
+        economy: parseInt(flight.price_economy),
+        business: parseInt(flight.price_business)
+      },
+      seatsLeft: flight.available_seats,
+      available_seats: flight.available_seats,
+      status: flight.status,
+      route: {
+        from: flight.departure_airport_id,
+        to: flight.destination_airport_id
+      }
+    }));
 
     res.status(200).json({
       success: true,
-      count: formattedFlights.length,
+      flights: formattedFlights,
+      total: formattedFlights.length,
       searchCriteria: {
-        from: fromId,
-        to: toId,
-        departureDate: departureDate
-      },
-      flights: formattedFlights
+        fromAirport: fromAirportData.airport_id,
+        toAirport: toAirportData.airport_id,
+        departureDate: departureDate.split('T')[0],
+        tripType,
+        passengerCount,
+        returnDate
+      }
     });
 
   } catch (error: any) {
     console.error('Error searching flights:', error);
     res.status(500).json({
+      success: false,
       message: 'Lỗi máy chủ',
       error: process.env.NODE_ENV === 'development' ? error.message : undefined
     });
   }
+};
+
+// Helper function to calculate flight duration
+const calculateDuration = (departureTime: string, arrivalTime: string): string => {
+  const departure = new Date(departureTime);
+  const arrival = new Date(arrivalTime);
+  const diffMs = arrival.getTime() - departure.getTime();
+  const diffHrs = Math.floor(diffMs / (1000 * 60 * 60));
+  const diffMins = Math.floor((diffMs % (1000 * 60 * 60)) / (1000 * 60));
+  return `${diffHrs}h ${diffMins}m`;
 };
 
 // Alternative method using Sequelize's date functions
