@@ -7,7 +7,7 @@ interface AircraftAttributes {
     total_seats: number;
 }
 
-interface AircraftCreationAttributes extends Optional<AircraftAttributes, 'aircraft_id'> {}
+interface AircraftCreationAttributes extends Optional<AircraftAttributes, 'aircraft_id'> { }
 
 export class Aircraft extends Model<AircraftAttributes, AircraftCreationAttributes> implements AircraftAttributes {
     public aircraft_id!: number;
@@ -16,7 +16,7 @@ export class Aircraft extends Model<AircraftAttributes, AircraftCreationAttribut
     public total_seats!: number;
 }
 
-export default(sequelize: Sequelize) => {
+export default (sequelize: Sequelize) => {
     Aircraft.init(
         {
             aircraft_id: {
