@@ -5,7 +5,6 @@ const createBookingSchema = yup.object({
   user_id: yup.number().required(),
   flight_id: yup.number().required(),
   seat_id: yup.number().required(),
-  booking_time: yup.date().required(),
   status: yup.string().oneOf(['confirmed', 'pending', 'cancelled']).required(),
   total_amount: yup.number().required()
 });
