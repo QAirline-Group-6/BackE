@@ -6,9 +6,9 @@ import UserModel, { User } from './user.model';
 import FlightModel, { Flight } from './flight.model';
 import BookingModel, { Booking } from './booking.model';
 import AircraftModel, { Aircraft } from './aircraft.model';
-import SeatModel, {Seat} from './seat.model';
-import CustomerModel, {Customer} from './customer.model';
-import AirportModel , {Airport} from './airport.model';
+import SeatModel, { Seat } from './seat.model';
+import CustomerModel, { Customer } from './customer.model';
+import AirportModel, { Airport } from './airport.model';
 
 dotenv.config();
 
@@ -39,13 +39,13 @@ Booking.belongsTo(Flight, { foreignKey: 'flight_id' });
 Booking.belongsTo(Seat, { foreignKey: 'seat_id' });
 Booking.belongsTo(Customer, { foreignKey: 'customer_id' });
 Flight.belongsTo(Airport, { foreignKey: 'departure_airport_id', as: 'departureAirport' });
-Flight.belongsTo(Airport, { foreignKey: 'destination_airport_id', as: 'destinationAirport'});
+Flight.belongsTo(Airport, { foreignKey: 'destination_airport_id', as: 'destinationAirport' });
 
 Customer.hasMany(Booking, { foreignKey: 'customer_id' });
 Flight.hasMany(Booking, { foreignKey: 'flight_id' });
 Seat.hasOne(Booking, { foreignKey: 'seat_id' });
-Airport.hasMany(Flight, { foreignKey: 'departure_airport_id', as: 'DepartingFlights'});
-Airport.hasMany(Flight, { foreignKey: 'destination_airport_id', as: 'ArrivingFlights'});
+Airport.hasMany(Flight, { foreignKey: 'departure_airport_id', as: 'DepartingFlights' });
+Airport.hasMany(Flight, { foreignKey: 'destination_airport_id', as: 'ArrivingFlights' });
 
 
 const db = {
