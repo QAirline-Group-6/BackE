@@ -19,6 +19,6 @@ router.put('/:id', authMiddleware.authenticateToken, authMiddleware.authorizeRol
 router.delete('/:id', authMiddleware.authenticateToken, authMiddleware.authorizeRoles('admin'), customerController.deleteCustomer);
 
 // Lấy lịch sử booking của customer
-router.get('/:id/bookings', authMiddleware.authenticateToken, authMiddleware.authorizeRoles('admin'), customerController.getCustomerBookings);
+// router.get('/:id/bookings', authMiddleware.authenticateToken, authMiddleware.authorizeRoles('admin'), customerController.getCustomerBookings);
 
 export default router;
