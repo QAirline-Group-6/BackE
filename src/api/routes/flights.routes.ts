@@ -4,6 +4,9 @@ const flightController = require('../../controllers/flights.controller');
 const authMiddleware = require('../middlewares/auth.middleware')
 
 // user
+// Lấy tất cả chuyến bay có phân trang
+router.get('/paginated', flightController.getPaginatedFlights);
+
 // Lấy tất cả chuyến bay
 router.get('/searchAll', flightController.getAllFlights);
 

@@ -24,6 +24,8 @@ router.post('/login', userController.loginUser);
 // Đổi mật khẩu(cho khách)
 router.post('/resetPassword', authMiddleware.authenticateToken,  userController.resetPassword);
 
+// Lấy thông tin user hiện tại
+router.get('/me', authMiddleware.authenticateToken, userController.getCurrentUser)
 
 // Lấy lịch sử booking của user
 router.get('/:id/bookings', authMiddleware.authenticateToken, authMiddleware.authorizeRoles('admin'), userController.getUserBookings);
