@@ -79,38 +79,38 @@ export const deleteCustomer = async (req: Request, res: Response) => {
 };
 
 // Lấy lịch sử booking của Customers
-exports.getCustomerBookings = async (req: Request, res: Response) => {
-  try {
-    const customerId = req.params.id;
+// exports.getCustomerBookings = async (req: Request, res: Response) => {
+//   try {
+//     const customerId = req.params.id;
 
-    const customer = await Customer.findByPk(customerId);
-    if (!customer) {
-      return res.status(404).json({ message: 'Customer not found' });
-    }
+//     const customer = await Customer.findByPk(customerId);
+//     if (!customer) {
+//       return res.status(404).json({ message: 'Customer not found' });
+//     }
 
-    const bookings = await Booking.findAll({
-      where: { customer_id: customerId },
-      include: [
-        {
-          model: Flight,
-          attributes: ['flight_id', 'departure', 'destination', 'departure_time', 'arrival_time']
-        },
-        {
-          model: Seat,
-          attributes: ['seat_number', 'seat_class']
-        }
-      ],
-      order: [['booking_time', 'DESC']]
-    });
+//     const bookings = await Booking.findAll({
+//       where: { customer_id: customerId },
+//       include: [
+//         {
+//           model: Flight,
+//           attributes: ['flight_id', 'departure', 'destination', 'departure_time', 'arrival_time']
+//         },
+//         {
+//           model: Seat,
+//           attributes: ['seat_number', 'seat_class']
+//         }
+//       ],
+//       order: [['booking_time', 'DESC']]
+//     });
 
-    res.json({
-      customer_id: customer.customer_id,
-      full_name: `${customer.last_name} ${customer.first_name}`,
-      bookings
-    });
+//     res.json({
+//       customer_id: customer.customer_id,
+//       full_name: `${customer.last_name} ${customer.first_name}`,
+//       bookings
+//     });
 
-  } catch (error) {
-    console.error('Error fetching bookings:', error);
-    res.status(500).json({ message: 'Internal server error' });
-  }
-};
+//   } catch (error) {
+//     console.error('Error fetching bookings:', error);
+//     res.status(500).json({ message: 'Internal server error' });
+//   }
+// };

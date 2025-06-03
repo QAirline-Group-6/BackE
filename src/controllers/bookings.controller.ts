@@ -16,10 +16,7 @@ export const createBooking = async (req: Request, res: Response) => {
      }
 
     const booking = await Booking.create({
-      customer_id,
       user_id,
-      flight_id,
-      seat_id,
       status,
       total_amount,
       booking_time: new Date()
@@ -72,24 +69,24 @@ export const updateBooking = async (req: Request, res: Response) => {
   }
 };
 
-export const cancelBooking = async (req: Request, res: Response) => {
-  try {
-    const { id } = req.params;
-    const booking = await Booking.findByPk(id);
-    if (!booking) {
-      return res.status(404).json({ message: 'Booking not found' });
-    }
-    const flight = await Flight.findByPk(booking.flight_id);
-    if (flight) {
-      flight.available_seats += 1;
-      booking.status = 'cancelled'
-      await flight.save();
-    }
-    res.status(200).json({ message: 'Booking is cancelled' });
-  } catch (error) {
-    console.error('Error deleting booking:', error);
-    res.status(500).json({ message: 'Internal server error' });
-  }
-};
+// export const cancelBooking = async (req: Request, res: Response) => {
+//   try {
+//     const { id } = req.params;
+//     const booking = await Booking.findByPk(id);
+//     if (!booking) {
+//       return res.status(404).json({ message: 'Booking not found' });
+//     }
+//     const flight = await Flight.findByPk(booking.flight_id);
+//     if (flight) {
+//       flight.available_seats += 1;
+//       booking.status = 'cancelled'
+//       await flight.save();
+//     }
+//     res.status(200).json({ message: 'Booking is cancelled' });
+//   } catch (error) {
+//     console.error('Error deleting booking:', error);
+//     res.status(500).json({ message: 'Internal server error' });
+//   }
+// };
 
 

@@ -1,8 +1,10 @@
 import { Request, Response } from 'express';
 import { User } from '../models/user.model';
+import { Booking } from '../models/booking.model';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import { Op } from 'sequelize';
+import { Ticket } from '../models/ticket.model';
 
 export const getAllUsers = async (req: Request, res: Response) => {
   try {
@@ -180,5 +182,35 @@ export const getCurrentUser = async (req: Request, res: Response) => {
       message: 'Lỗi máy chủ',
       error: err.message
     });
+  }
+};
+// Lấy lịch sử booking của Users
+exports.getUserBookings = async (req: Request, res: Response) => {
+  try {
+    const userId = req.params.id;
+
+    const user = await User.findByPk(userId);
+    if (!user) {
+      return res.status(404).json({ message: 'Không thấy người dùng' });
+    }
+
+    const bookings = await Booking.findAll({
+      where: { user_id: userId },
+      include: [
+        {
+          model: Ticket,
+        }
+      ],
+      order: [['booking_time', 'DESC']]
+    });
+
+    res.json({
+      user_id: user.user_id,
+      bookings
+    });
+
+  } catch (error) {
+    console.error('Error fetching bookings:', error);
+    res.status(500).json({ message: 'Internal server error' });
   }
 };

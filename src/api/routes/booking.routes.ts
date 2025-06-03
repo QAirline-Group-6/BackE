@@ -19,6 +19,6 @@ router.get('/:id', authMiddleware.authenticateToken, authMiddleware.authorizeRol
 router.put('/update/:id', bookingController.updateBooking);
 
 // Hủy đặt vé (khách)
-router.put('/cancel/:id', bookingController.cancelBooking);
+// router.put('/cancel/:id', bookingController.cancelBooking);
 
 export default router;
