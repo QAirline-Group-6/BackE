@@ -1,32 +1,56 @@
 import { Request, Response } from 'express';
 import { Booking } from '../models/booking.model';
 import { Flight } from '../models/flight.model';
+import { Ticket } from '../models/ticket.model';
 import { Seat } from '../models/seat.model';
 import { Customer } from '../models/customer.model';
+
 
 export const createBooking = async (req: Request, res: Response) => {
   try {
     console.log('Body:', req.body);
-    const { customer_id, user_id, flight_id, seat_id, status, total_amount } = req.body;
-     const flight = await Flight.findByPk(flight_id);
-     if (!flight) return res.status(404).json({ message: 'Flight not found' });
- 
-     if (flight.available_seats <= 0) {
-       return res.status(400).json({ message: 'No available seats for this flight' });
-     }
-
+    const {
+      user_id,
+      flight_id,
+      seat_id,
+      total_amount,
+      customer, 
+      price,   
+      status = 'confirmed' 
+    } = req.body;
+    const flight = await Flight.findByPk(flight_id);
+    if (!flight) {
+      return res.status(404).json({ message: 'Không tìm thấy chuyến bay' });
+    }
+    if (flight.available_seats <= 0) {
+      return res.status(400).json({ message: 'Không còn ghế trống cho chuyến bay này' });
+    }
+    const newCustomer = await Customer.create({ ...customer, user_id });
     const booking = await Booking.create({
       user_id,
       status,
       total_amount,
       booking_time: new Date()
-    });
+    }, );
+    const ticket = await Ticket.create({
+      booking_id: booking.booking_id,
+      flight_id,
+      seat_id,
+      customer_id: newCustomer.customer_id,
+      price,
+      status: 'booked'
+    },);
     flight.available_seats -= 1;
     await flight.save();
-    res.status(201).json({ message: 'Đặt vé thanh công', booking });
-  } catch (err) {
-    console.error('Error creating booking:', err);
-    res.status(500).json({ message: 'Lỗi máy chủ' });
+    res.status(201).json({
+      message: 'Đặt vé thành công',
+      booking,
+      ticket,
+      customer: newCustomer
+    });
+  } catch (err: any) {
+    console.error('Lỗi khi tạo booking:', err);
+    res.status(500).json({ message: 'Lỗi máy chủ', error: err.message });
   }
 };
 
