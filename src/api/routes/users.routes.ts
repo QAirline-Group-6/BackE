@@ -21,8 +21,11 @@ router.post('/register', userController.registerUser);
 // Đăng nhập (cho khách)
 router.post('/login', userController.loginUser);
 
+// Lấy thông tin user hiện tại
+router.get('/me', authMiddleware.authenticateToken, userController.getCurrentUser);
+
 // Đổi mật khẩu(cho khách)
-router.post('/resetPassword', authMiddleware.authenticateToken,  userController.resetPassword);
+router.post('/resetPassword', authMiddleware.authenticateToken, userController.resetPassword);
 
 // Lấy thông tin user hiện tại
 router.get('/me', authMiddleware.authenticateToken, userController.getCurrentUser)
