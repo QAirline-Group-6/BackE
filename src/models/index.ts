@@ -46,9 +46,8 @@ Ticket.belongsTo(Flight, { foreignKey: 'flight_id' });
 Ticket.belongsTo(Seat, { foreignKey: 'seat_id' });
 Ticket.belongsTo(Customer, { foreignKey: 'customer_id' });
 
-Customer.hasMany(Booking, { foreignKey: 'customer_id' });
-Flight.hasMany(Booking, { foreignKey: 'flight_id' });
-Seat.hasOne(Booking, { foreignKey: 'seat_id' });
+
+
 Airport.hasMany(Flight, { foreignKey: 'departure_airport_id', as: 'DepartingFlights'});
 Airport.hasMany(Flight, { foreignKey: 'destination_airport_id', as: 'ArrivingFlights'});
 Aircraft.hasMany(Flight, { foreignKey: 'aircraft_id', as: 'Flights' });
