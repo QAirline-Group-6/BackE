@@ -9,44 +9,47 @@ import { Customer } from '../models/customer.model';
 export const createBooking = async (req: Request, res: Response) => {
   try {
     console.log('Body:', req.body);
-    const {
-      user_id,
-      flight_id,
-      seat_id,
-      total_amount,
-      customer, 
-      price,   
-      status = 'confirmed' 
-    } = req.body;
-    const flight = await Flight.findByPk(flight_id);
-    if (!flight) {
-      return res.status(404).json({ message: 'Không tìm thấy chuyến bay' });
-    }
-    if (flight.available_seats <= 0) {
-      return res.status(400).json({ message: 'Không còn ghế trống cho chuyến bay này' });
-    }
-    const newCustomer = await Customer.create({ ...customer, user_id });
+    const { 
+      user_id, 
+      total_amount, 
+      status = 'confirmed', 
+      bookings } 
+    = req.body;
     const booking = await Booking.create({
       user_id,
       status,
       total_amount,
       booking_time: new Date()
-    }, );
-    const ticket = await Ticket.create({
-      booking_id: booking.booking_id,
-      flight_id,
-      seat_id,
-      customer_id: newCustomer.customer_id,
-      price,
-      status: 'booked'
-    },);
-    flight.available_seats -= 1;
-    await flight.save();
+    });
+    const createdTickets = [];
+    for (const bookingItem of bookings) {
+      const flight = await Flight.findByPk(bookingItem.flight_id);
+      if (!flight) {
+        return res.status(404).json({ message: `Không tìm thấy chuyến bay ${bookingItem.flight_id}` });
+      }
+      const numTickets = bookingItem.tickets.length;
+      if (flight.available_seats < numTickets) {
+        return res.status(400).json({ message: `Không đủ ghế cho chuyến bay ${flight.flight_id}` });
+      }
+      for (const ticketData of bookingItem.tickets) {
+        const customer = await Customer.create({ ...ticketData.customer, user_id });
+        const ticket = await Ticket.create({
+          booking_id: booking.booking_id,
+          flight_id: flight.flight_id,
+          seat_id: ticketData.seat_id,
+          customer_id: customer.customer_id,
+          price: ticketData.price,
+          status: 'booked'
+        });
+        createdTickets.push({ ticket, customer });
+      }
+      flight.available_seats -= numTickets;
+      await flight.save();
+    }
     res.status(201).json({
       message: 'Đặt vé thành công',
       booking,
-      ticket,
-      customer: newCustomer
+      tickets: createdTickets
     });
   } catch (err: any) {
     console.error('Lỗi khi tạo booking:', err);

@@ -1,22 +1,28 @@
-const yup = require('yup');
+import * as yup from 'yup';
 
-const createBookingSchema = yup.object({
+export const createBookingSchema = yup.object({
   user_id: yup.number().required(),
-  flight_id: yup.number().required(),
-  seat_id: yup.number().required(),
   total_amount: yup.number().required(),
-  price: yup.number().required(),
-  status: yup.string().oneOf(['confirmed', 'pending', 'cancelled']).required(),
-  customer: yup.object({
-    first_name: yup.string().required(),
-    last_name: yup.string().required(),
-    address: yup.string().required(),
-    gender: yup.string().oneOf(['male', 'female', 'other']).required(),
-    date_of_birth: yup.date().required(),
-    id_card_number: yup.string().required()
-  }).required()
+  status: yup.string().oneOf(['confirmed', 'pending', 'cancelled']).default('confirmed'),
+  bookings: yup.array().of(
+    yup.object({
+      flight_id: yup.number().required(),
+      tickets: yup.array().of(
+        yup.object({
+          seat_id: yup.number().required(),
+          price: yup.number().required(),
+          customer: yup.object({
+            first_name: yup.string().required(),
+            last_name: yup.string().required(),
+            address: yup.string().required(),
+            gender: yup.string().oneOf(['male', 'female', 'other']).required(),
+            date_of_birth: yup.date().required(),
+            id_card_number: yup.string().required()
+          }).required()
+        })
+      ).min(1, 'Mỗi chuyến bay cần ít nhất một vé')
+    })
+  ).min(1, 'Cần ít nhất một chuyến bay để đặt')
 });
 
-module.exports = {
-  createBookingSchema
-}; 
+export default createBookingSchema;
