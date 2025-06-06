@@ -2,6 +2,7 @@ import { Sequelize, DataTypes, Model, Optional } from 'sequelize';
 
 interface BookingAttributes {
   booking_id: number;
+  booking_code: string;
   user_id: number;
   booking_time: Date;
   status: 'confirmed' | 'cancelled' | 'completed';
@@ -12,6 +13,7 @@ interface BookingCreationAttributes extends Optional<BookingAttributes, 'booking
 
 export class Booking extends Model<BookingAttributes, BookingCreationAttributes> implements BookingAttributes {
   public booking_id!: number;
+  public booking_code!: string;
   public user_id!: number;
   public booking_time!: Date;
   public status!: 'confirmed' | 'cancelled' | 'completed';
@@ -25,6 +27,11 @@ export default (sequelize: Sequelize) => {
         type: DataTypes.INTEGER,
         primaryKey: true,
         autoIncrement: true,
+      },
+      booking_code: {
+        type: DataTypes.STRING,
+        allowNull: false,
+        unique: true,
       },
       user_id: {
         type: DataTypes.INTEGER,
