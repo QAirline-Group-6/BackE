@@ -10,12 +10,14 @@ export const createBooking = async (req: Request, res: Response) => {
   try {
     console.log('Body:', req.body);
     const { 
+      booking_code,
       user_id, 
       total_amount, 
       status = 'confirmed', 
       bookings } 
     = req.body;
     const booking = await Booking.create({
+      booking_code,
       user_id,
       status,
       total_amount,
