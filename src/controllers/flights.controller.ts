@@ -10,7 +10,7 @@ export const getAllFlights = async (req: Request, res: Response): Promise<void> 
       include: [
         { model: db.Airport, as: 'departureAirport', attributes: ['airport_id', 'name', 'code'] },
         { model: db.Airport, as: 'destinationAirport', attributes: ['airport_id', 'name', 'code'] },
-        { model: db.Aircraft, as: 'aircraft', attributes: ['aircraft_id', 'manufacturer', 'model']},
+        { model: db.Aircraft, as: 'aircraft', attributes: ['aircraft_id', 'manufacturer', 'model'] },
       ]
     });
     const formattedFlights = flights.map((flight: any) => {
@@ -33,7 +33,7 @@ export const getPopularFlights = async (req: Request, res: Response): Promise<vo
       include: [
         { model: db.Airport, as: 'departureAirport', attributes: ['airport_id', 'name', 'code'] },
         { model: db.Airport, as: 'destinationAirport', attributes: ['airport_id', 'name', 'code'] },
-        { model: db.Aircraft, as: 'aircraft', attributes: ['aircraft_id', 'manufacturer', 'model']},
+        { model: db.Aircraft, as: 'aircraft', attributes: ['aircraft_id', 'manufacturer', 'model'] },
       ],
       order: [['bookings', 'DESC']],
       limit: 5
@@ -226,7 +226,8 @@ export const searchFlightsByDes = async (req: Request, res: Response): Promise<v
     const flights = await Flight.findAll({
       include: [
         { model: db.Airport, as: 'departureAirport', attributes: ['airport_id', 'name', 'code'] },
-        { model: db.Airport, as: 'destinationAirport', attributes: ['airport_id', 'name', 'code'] }
+        { model: db.Airport, as: 'destinationAirport', attributes: ['airport_id', 'name', 'code'] },
+        { model: db.Aircraft, as: 'aircraft', attributes: ['aircraft_id', 'manufacturer', 'model'] }
       ],
       where: whereConditions,
       order: [['departure_time', 'ASC']],
