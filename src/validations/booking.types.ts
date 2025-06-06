@@ -1,6 +1,7 @@
 import * as yup from 'yup';
 
 export const createBookingSchema = yup.object({
+  booking_code: yup.string().required(),
   user_id: yup.number().required(),
   total_amount: yup.number().required(),
   status: yup.string().oneOf(['confirmed', 'pending', 'cancelled']).default('confirmed'),
