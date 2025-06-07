@@ -10,6 +10,7 @@ import SeatModel, { Seat } from './seat.model';
 import CustomerModel, { Customer } from './customer.model';
 import AirportModel, { Airport } from './airport.model';
 import TicketModel, { Ticket } from './ticket.model';
+import blogInitializer from './blog.model'; // Import the default initializer function
 
 dotenv.config();
 
@@ -35,21 +36,20 @@ const SeatModelInstance = SeatModel(sequelize);
 const CustomerModelInstance = CustomerModel(sequelize);
 const AirportModelInstance = AirportModel(sequelize);
 const TicketModelInstance = TicketModel(sequelize);
+const BlogModelInstance = blogInitializer(sequelize); // Initialize the Blog model
 
 // Khai báo quan hệ
 Booking.belongsTo(User, { foreignKey: 'user_id' });
 Flight.belongsTo(Airport, { foreignKey: 'departure_airport_id', as: 'departureAirport' });
-Flight.belongsTo(Airport, { foreignKey: 'destination_airport_id', as: 'destinationAirport'});
-Flight.belongsTo(Aircraft, { foreignKey: 'aircraft_id', as: 'aircraft'});
+Flight.belongsTo(Airport, { foreignKey: 'destination_airport_id', as: 'destinationAirport' });
+Flight.belongsTo(Aircraft, { foreignKey: 'aircraft_id', as: 'aircraft' });
 Ticket.belongsTo(Booking, { foreignKey: 'booking_id' });
 Ticket.belongsTo(Flight, { foreignKey: 'flight_id' });
 Ticket.belongsTo(Seat, { foreignKey: 'seat_id' });
 Ticket.belongsTo(Customer, { foreignKey: 'customer_id' });
 
-
-
-Airport.hasMany(Flight, { foreignKey: 'departure_airport_id', as: 'DepartingFlights'});
-Airport.hasMany(Flight, { foreignKey: 'destination_airport_id', as: 'ArrivingFlights'});
+Airport.hasMany(Flight, { foreignKey: 'departure_airport_id', as: 'DepartingFlights' });
+Airport.hasMany(Flight, { foreignKey: 'destination_airport_id', as: 'ArrivingFlights' });
 Aircraft.hasMany(Flight, { foreignKey: 'aircraft_id', as: 'Flights' });
 User.hasMany(Booking, { foreignKey: 'user_id' });
 Booking.hasMany(Ticket, { foreignKey: 'booking_id' });
@@ -68,7 +68,8 @@ const db = {
   Customer: CustomerModelInstance,
   Airport: AirportModelInstance,
   Ticket: TicketModelInstance,
+  Blog: BlogModelInstance,
 };
 
 export default db;
-export { User, Flight, Booking, Aircraft, Seat, Customer, Airport, Ticket };
+export { User, Flight, Booking, Aircraft, Seat, Customer, Airport, Ticket, BlogModelInstance as Blog };
