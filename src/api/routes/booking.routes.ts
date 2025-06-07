@@ -12,6 +12,9 @@ router.post('/book', validationMiddleware.validateBody(bookingTypes.createBookin
 // Lấy tất cả booking
 router.get('/', authMiddleware.authenticateToken,   authMiddleware.authorizeRoles('admin'), bookingController.getAllBookings);
 
+// Lấy tất cả vé
+router.get('/ticket', authMiddleware.authenticateToken,   authMiddleware.authorizeRoles('admin'), bookingController.getAllTicket);
+
 // Lấy booking theo ID
 router.get('/:id', authMiddleware.authenticateToken, authMiddleware.authorizeRoles('admin'), bookingController.getBookingById);
 
