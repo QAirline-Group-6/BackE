@@ -69,6 +69,16 @@ export const getAllBookings = async (req: Request, res: Response) => {
   }
 };
 
+export const getAllTicket = async (req: Request, res: Response) => {
+  try {
+    const tickets = await Ticket.findAll();
+    res.status(200).json(tickets);
+  } catch (error) {
+    console.error('Không có được thông tin vé:', error);
+    res.status(500).json({ message: 'Internal server error' });
+  }
+};
+
 export const getBookingById = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
@@ -123,4 +133,32 @@ export const cancelBooking = async (req: Request, res: Response) => {
   }
 };
 
+exports.getUserBookings = async (req: Request, res: Response) => {
+  try {
+    const userId = req.params.id;
 
+    const user = await Booking.findByPk(userId);
+    if (!user) {
+      return res.status(404).json({ message: 'Không thấy người dùng' });
+    }
+
+    const bookings = await Booking.findAll({
+      where: { user_id: userId },
+      include: [
+        {
+          model: Ticket,
+        }
+      ],
+      order: [['booking_time', 'DESC']]
+    });
+
+    res.json({
+      user_id: user.user_id,
+      bookings
+    });
+
+  } catch (error) {
+    console.error('Error fetching bookings:', error);
+    res.status(500).json({ message: 'Internal server error' });
+  }
+};
