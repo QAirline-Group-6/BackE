@@ -7,7 +7,7 @@ const app: Express = express();
 
 // Configure CORS
 app.use(cors({
-    origin: ['http://localhost:3002', 'http://localhost:3000'],
+    origin: ['http://localhost:3002', 'http://localhost:3000'], //'https://localhost:3002/admin/dashboard'],
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization']
 }));
