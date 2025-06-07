@@ -10,7 +10,7 @@ const bookingTypes = require('../../validations/booking.types');
 router.post('/book', validationMiddleware.validateBody(bookingTypes.createBookingSchema), bookingController.createBooking);
 
 // Lấy tất cả booking
-router.get('/', authMiddleware.authenticateToken,   authMiddleware.authorizeRoles('admin'), bookingController.getAllBookings);
+router.get('/', authMiddleware.authenticateToken, authMiddleware.authorizeRoles('admin'), bookingController.getAllBookings);
 
 // Lấy booking theo ID
 router.get('/:id', authMiddleware.authenticateToken, authMiddleware.authorizeRoles('admin'), bookingController.getBookingById);
