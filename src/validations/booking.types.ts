@@ -1,4 +1,5 @@
 import * as yup from 'yup';
+import { isValidDDMMYYYY } from '../utils/dateUtils';
 
 export const createBookingSchema = yup.object({
   booking_code: yup.string().required(),
@@ -17,7 +18,11 @@ export const createBookingSchema = yup.object({
             last_name: yup.string().required(),
             address: yup.string().required(),
             gender: yup.string().oneOf(['male', 'female', 'other']).required(),
-            date_of_birth: yup.date().required(),
+            date_of_birth: yup.string()
+              .required()
+              .test('is-valid-date', 'Ngày sinh phải có định dạng dd-MM-yyyy', value =>
+                isValidDDMMYYYY(value)
+              ),
             id_card_number: yup.string().required()
           }).required()
         })
