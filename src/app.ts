@@ -7,7 +7,7 @@ const app: Express = express();
 
 // Configure CORS
 app.use(cors({
-    origin: ['http://localhost:3002', 'http://localhost:3000'],
+    origin: ['http://localhost:3002', 'http://localhost:3000', 'https://localhost:3002/admin/dashboard'],
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization']
 }));
@@ -23,7 +23,6 @@ import seatRoutes from './api/routes/seat.routes';
 import customerRoutes from './api/routes/customer.routes';
 import airportRoutes from './api/routes/airports.routes';
 import ticketRoutes from './api/routes/ticket.routes';
-import blogRoutes from './api/routes/blog.routes';
 
 // Use the routes with correct URL paths
 app.use('/flights', flightRoutes);
@@ -34,6 +33,5 @@ app.use('/seats', seatRoutes);
 app.use('/customers', customerRoutes);
 app.use('/airports', airportRoutes);
 app.use('/tickets', ticketRoutes);
-app.use('/blogs', blogRoutes);
 
 export default app;
