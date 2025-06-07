@@ -9,19 +9,10 @@ export const getAllFlights = async (req: Request, res: Response): Promise<void> 
     const flights = await Flight.findAll({
       include: [
         { model: db.Airport, as: 'departureAirport', attributes: ['airport_id', 'name', 'code'] },
-        { model: db.Airport, as: 'destinationAirport', attributes: ['airport_id', 'name', 'code'] },
-        { model: db.Aircraft, as: 'aircraft', attributes: ['aircraft_id', 'manufacturer', 'model'] },
+        { model: db.Airport, as: 'destinationAirport', attributes: ['airport_id', 'name', 'code'] }
       ]
     });
-    const formattedFlights = flights.map((flight: any) => {
-      const flightData = flight.toJSON();
-      return {
-        ...flightData,
-        departure_date: new Date(flightData.departure_time).toISOString().split('T')[0],
-        arrival_date: new Date(flightData.arrival_time).toISOString().split('T')[0],
-      };
-    });
-    res.json(formattedFlights);
+    res.json(flights);
   } catch (err: any) {
     res.status(500).json({ error: err.message });
   }
@@ -32,21 +23,12 @@ export const getPopularFlights = async (req: Request, res: Response): Promise<vo
     const flights = await Flight.findAll({
       include: [
         { model: db.Airport, as: 'departureAirport', attributes: ['airport_id', 'name', 'code'] },
-        { model: db.Airport, as: 'destinationAirport', attributes: ['airport_id', 'name', 'code'] },
-        { model: db.Aircraft, as: 'aircraft', attributes: ['aircraft_id', 'manufacturer', 'model'] },
+        { model: db.Airport, as: 'destinationAirport', attributes: ['airport_id', 'name', 'code'] }
       ],
       order: [['bookings', 'DESC']],
       limit: 5
     });
-    const formattedFlights = flights.map((flight: any) => {
-      const flightData = flight.toJSON();
-      return {
-        ...flightData,
-        departure_date: new Date(flightData.departure_time).toISOString().split('T')[0],
-        arrival_date: new Date(flightData.arrival_time).toISOString().split('T')[0],
-      };
-    });
-    res.json(formattedFlights);
+    res.json(flights);
   } catch (err: any) {
     res.status(500).json({ error: err.message });
   }
@@ -54,29 +36,16 @@ export const getPopularFlights = async (req: Request, res: Response): Promise<vo
 
 export const getFlightById = async (req: Request, res: Response): Promise<void> => {
   try {
-    const flight = await Flight.findByPk(req.params.id, {
-      include: [
-        { model: db.Airport, as: 'departureAirport', attributes: ['airport_id', 'name', 'code'] },
-        { model: db.Airport, as: 'destinationAirport', attributes: ['airport_id', 'name', 'code'] },
-        { model: db.Aircraft, as: 'aircraft', attributes: ['aircraft_id', 'manufacturer', 'model'] }
-      ]
-    });
+    const flight = await Flight.findByPk(req.params.id);
     if (!flight) {
       res.status(404).json({ message: 'Không tìm thấy chuyến bay.' });
       return;
     }
-    const flightData = flight.toJSON();
-    const formattedFlight = {
-      ...flightData,
-      departure_date: new Date(flightData.departure_time).toISOString().split('T')[0],
-      arrival_date: new Date(flightData.arrival_time).toISOString().split('T')[0]
-    };
-    res.json(formattedFlight);
+    res.json(flight);
   } catch (err: any) {
     res.status(500).json({ error: err.message });
   }
 };
-
 
 export const createFlight = async (req: Request, res: Response): Promise<void> => {
   try {
@@ -227,7 +196,7 @@ export const searchFlightsByDes = async (req: Request, res: Response): Promise<v
       include: [
         { model: db.Airport, as: 'departureAirport', attributes: ['airport_id', 'name', 'code'] },
         { model: db.Airport, as: 'destinationAirport', attributes: ['airport_id', 'name', 'code'] },
-        { model: db.Aircraft, as: 'aircraft', attributes: ['aircraft_id', 'manufacturer', 'model'] }
+        { model: db.Aircraft, as: 'aircraft', attributes: ['manufacturer', 'model'] }
       ],
       where: whereConditions,
       order: [['departure_time', 'ASC']],
@@ -235,53 +204,41 @@ export const searchFlightsByDes = async (req: Request, res: Response): Promise<v
       offset: offset
     });
 
-    // Format response to match frontend expectations
-    const formattedFlights = flights.map((flight: any) => ({
-      id: flight.flight_id.toString(),
-      flight_id: flight.flight_id,
-      flight_number: flight.flight_number,
-      aircraft: flight.aircraft.manufacturer,
-      departure: {
-        airport: flight.departureAirport?.name || '',
-        code: flight.departureAirport?.code || '',
-        time: new Date(flight.departure_time).toLocaleTimeString('vi-VN', {
-          hour: '2-digit',
-          minute: '2-digit'
-        })
-      },
-      arrival: {
-        airport: flight.destinationAirport?.name || '',
-        code: flight.destinationAirport?.code || '',
-        time: new Date(flight.arrival_time).toLocaleTimeString('vi-VN', {
-          hour: '2-digit',
-          minute: '2-digit'
-        })
-      },
-      departure_time: flight.departure_time,
-      arrival_time: flight.arrival_time,
-      departure_date: new Date(flight.departure_time).toISOString().split('T')[0],
-      arrival_date: new Date(flight.arrival_time).toISOString().split('T')[0],
-      duration: calculateDuration(flight.departure_time, flight.arrival_time),
-      price: {
-        economy: parseInt(flight.price_economy),
-        business: parseInt(flight.price_business)
-      },
-      prices: {
-        economy: parseInt(flight.price_economy),
-        business: parseInt(flight.price_business)
-      },
-      seatsLeft: flight.available_seats,
-      available_seats: flight.available_seats,
-      status: flight.status,
-      route: {
-        from: flight.departure_airport_id,
-        to: flight.destination_airport_id
-      }
-    }));
+    // Helper function to calculate flight duration
+    const calculateDuration = (departureTime: string, arrivalTime: string): string => {
+      const departure = new Date(departureTime);
+      const arrival = new Date(arrivalTime);
+      const diffMs = arrival.getTime() - departure.getTime();
+      const diffHrs = Math.floor(diffMs / (1000 * 60 * 60));
+      const diffMins = Math.floor((diffMs % (1000 * 60 * 60)) / (1000 * 60));
+      return `${diffHrs}h ${diffMins}m`;
+    };
+
+    // Helper function to determine airline based on flight number
+    const getAirlineFromFlightNumber = (flightNumber: string): string => {
+      const airlineCodes: { [key: string]: string } = {
+        'VN': 'Vietnam Airlines',
+        'QH': 'Bamboo Airways',
+        'VJ': 'Vietjet Air',
+        'BL': 'Pacific Airlines',
+        'TG': 'Thai Airways International'
+      };
+
+      const code = flightNumber.substring(0, 2);
+      return airlineCodes[code] || 'Unknown Airline';
+    };
 
     res.status(200).json({
       success: true,
-      flights: flights,
+      flights: flights.map(flight => {
+        const flightData = flight.toJSON() as any;
+        return {
+          ...flightData,
+          departure_date: new Date(flightData.departure_time).toISOString().split('T')[0],
+          aircraft_type: `${flightData.aircraft.manufacturer} ${flightData.aircraft.model}`,
+          airline: getAirlineFromFlightNumber(flightData.flight_number)
+        };
+      }),
       pagination: {
         total,
         page,
@@ -432,16 +389,52 @@ export const getPaginatedFlights = async (req: Request, res: Response): Promise<
     const page = parseInt(req.query.page as string) || 1;
     const limit = parseInt(req.query.limit as string) || 3;
     const offset = (page - 1) * limit;
+    const minPrice = req.query.minPrice ? parseFloat(req.query.minPrice as string) : undefined;
+    const maxPrice = req.query.maxPrice ? parseFloat(req.query.maxPrice as string) : undefined;
+    const timeOfDay = req.query.timeOfDay as string | undefined;
 
-    // Get total count of flights
-    const total = await Flight.count();
+    // Build where conditions
+    const whereConditions: any = {};
 
-    // Get paginated flights with airport information
+    // Add price filters
+    if (minPrice !== undefined || maxPrice !== undefined) {
+      whereConditions.price_economy = {};
+      if (minPrice !== undefined) {
+        whereConditions.price_economy[Op.gte] = minPrice;
+      }
+      if (maxPrice !== undefined) {
+        whereConditions.price_economy[Op.lte] = maxPrice;
+      }
+    }
+
+    // Add time of day filter if it exists (Vietnam timezone)
+    if (timeOfDay) {
+      const timeRanges: { [key: string]: { start: string; end: string } } = {
+        morning: { start: '00:00:00', end: '11:59:59' },
+        afternoon: { start: '12:00:00', end: '17:59:59' },
+        evening: { start: '18:00:00', end: '23:59:59' }
+      };
+
+      if (timeRanges[timeOfDay]) {
+        const { start, end } = timeRanges[timeOfDay];
+        whereConditions.departure_time = Sequelize.where(
+          Sequelize.fn('TIME', Sequelize.fn('CONVERT_TZ', Sequelize.col('departure_time'), '+00:00', '+07:00')),
+          { [Op.between]: [start, end] }
+        );
+      }
+    }
+
+    // Get total count of flights with filters
+    const total = await Flight.count({ where: whereConditions });
+
+    // Get paginated flights with airport information and filters
     const flights = await Flight.findAll({
       include: [
         { model: db.Airport, as: 'departureAirport', attributes: ['airport_id', 'name', 'code'] },
-        { model: db.Airport, as: 'destinationAirport', attributes: ['airport_id', 'name', 'code'] }
+        { model: db.Airport, as: 'destinationAirport', attributes: ['airport_id', 'name', 'code'] },
+        { model: db.Aircraft, as: 'aircraft', attributes: ['manufacturer', 'model'] }
       ],
+      where: whereConditions,
       limit: limit,
       offset: offset,
       order: [['departure_time', 'DESC']],
@@ -460,30 +453,50 @@ export const getPaginatedFlights = async (req: Request, res: Response): Promise<
       ]
     });
 
+    // Helper function to determine airline based on flight number
+    const getAirlineFromFlightNumber = (flightNumber: string): string => {
+      const airlineCodes: { [key: string]: string } = {
+        'VN': 'Vietnam Airlines',
+        'QH': 'Bamboo Airways',
+        'VJ': 'Vietjet Air',
+        'BL': 'Pacific Airlines',
+        'TG': 'Thai Airways International'
+      };
+
+      const code = flightNumber.substring(0, 2);
+      return airlineCodes[code] || 'Unknown Airline';
+    };
+
     // Format response to match the requested structure
-    const formattedFlights = flights.map((flight: any) => ({
-      flight_id: flight.flight_id,
-      aircraft_id: flight.aircraft_id,
-      flight_number: flight.flight_number,
-      departure_airport_id: flight.departure_airport_id,
-      destination_airport_id: flight.destination_airport_id,
-      departure_time: flight.departure_time,
-      arrival_time: flight.arrival_time,
-      price_economy: flight.price_economy,
-      price_business: flight.price_business,
-      available_seats: flight.available_seats,
-      status: flight.status,
-      departureAirport: {
-        airport_id: flight.departureAirport.airport_id,
-        name: flight.departureAirport.name,
-        code: flight.departureAirport.code
-      },
-      destinationAirport: {
-        airport_id: flight.destinationAirport.airport_id,
-        name: flight.destinationAirport.name,
-        code: flight.destinationAirport.code
-      }
-    }));
+    const formattedFlights = flights.map((flight: any) => {
+      const flightData = flight.toJSON();
+      return {
+        flight_id: flightData.flight_id,
+        aircraft_id: flightData.aircraft_id,
+        flight_number: flightData.flight_number,
+        departure_airport_id: flightData.departure_airport_id,
+        destination_airport_id: flightData.destination_airport_id,
+        departure_time: flightData.departure_time,
+        arrival_time: flightData.arrival_time,
+        price_economy: flightData.price_economy,
+        price_business: flightData.price_business,
+        available_seats: flightData.available_seats,
+        status: flightData.status,
+        departure_date: new Date(flightData.departure_time).toISOString().split('T')[0],
+        aircraft_type: `${flightData.aircraft.manufacturer} ${flightData.aircraft.model}`,
+        airline: getAirlineFromFlightNumber(flightData.flight_number),
+        departureAirport: {
+          airport_id: flightData.departureAirport.airport_id,
+          name: flightData.departureAirport.name,
+          code: flightData.departureAirport.code
+        },
+        destinationAirport: {
+          airport_id: flightData.destinationAirport.airport_id,
+          name: flightData.destinationAirport.name,
+          code: flightData.destinationAirport.code
+        }
+      };
+    });
 
     res.status(200).json({
       success: true,
@@ -493,6 +506,11 @@ export const getPaginatedFlights = async (req: Request, res: Response): Promise<
         page,
         limit,
         totalPages: Math.ceil(total / limit)
+      },
+      filters: {
+        minPrice,
+        maxPrice,
+        timeOfDay
       }
     });
 
