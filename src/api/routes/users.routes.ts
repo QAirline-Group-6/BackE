@@ -31,5 +31,7 @@ router.post('/resetPassword', authMiddleware.authenticateToken, userController.r
 router.get('/me', authMiddleware.authenticateToken, userController.getCurrentUser)
 
 // Lấy lịch sử booking của user
+router.get('/:id/bookings/detail', authMiddleware.authenticateToken, userController.getUserBookings);
+
 router.get('/:id/bookings', authMiddleware.authenticateToken, authMiddleware.authorizeRoles('admin'), userController.getUserBookings);
 export default router
