@@ -11,11 +11,11 @@ const PORT = process.env.PORT || 4000;
 // Sync DB and start the server
 db.sequelize.sync()
   .then(() => {
-    console.log('✅ Kết nối DB và đồng bộ thành công.');
+    console.log('Kết nối DB và đồng bộ thành công.');
     app.listen(PORT, () => {
-      console.log(`🚀 Server đang chạy tại http://localhost:${PORT}`);
+      console.log(`Server đang chạy tại http://localhost:${PORT}`);
     });
   })
   .catch((error: Error) => {
-    console.error('❌ Lỗi kết nối DB:', error);
+    console.error('Lỗi kết nối DB:', error);
   });
