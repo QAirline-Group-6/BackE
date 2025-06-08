@@ -1,19 +1,18 @@
-import express from 'express'
+import express from 'express';
 const router = express.Router();
 const aircraftController = require('../../controllers/aircraft.controller');
-const authMiddleware = require('../middlewares/auth.middleware')
+const authMiddleware = require('../middlewares/auth.middleware');
 
+// Tạo máy bay mới (chỉ admin)
+router.post('/new', authMiddleware.authenticateToken, authMiddleware.authorizeRoles('admin'), aircraftController.createAircraft);
 
-// Tạo máy bay
-router.post('/', authMiddleware.authenticateToken, authMiddleware.authorizeRoles('admin'), aircraftController.createAircraft);
-
-// Lấy danh sách máy bay 
+// Lấy danh sách máy bay (mọi người đều được xem)
 router.get('/', aircraftController.getAllAircrafts);
 
-// Cập nhật thông tin tàu bay
-router.put('/update/:id', aircraftController.updateAircraft);
+// Cập nhật máy bay (chỉ admin)
+router.put('/update/:id', authMiddleware.authenticateToken, authMiddleware.authorizeRoles('admin'), aircraftController.updateAircraft);
 
-// Xóa tàu bay
-router.delete('/del/:id', aircraftController.deleteAircraft);
+// Xóa máy bay (chỉ admin)
+router.delete('/del/:id', authMiddleware.authenticateToken, authMiddleware.authorizeRoles('admin'), aircraftController.deleteAircraft);
 
 export default router;
