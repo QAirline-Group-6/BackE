@@ -1,23 +1,55 @@
 import { Request, Response } from 'express';
 import { User } from '../models/user.model';
 import { Booking } from '../models/booking.model';
+import { Ticket } from '../models/ticket.model';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import { Op } from 'sequelize';
-import { Ticket } from '../models/ticket.model';
 
+// Lấy tất cả người dùng
 export const getAllUsers = async (req: Request, res: Response) => {
   try {
-    const users = await User.findAll();
+    const users = await User.findAll({
+      attributes: { exclude: ['password'] }
+    });
     res.json(users);
   } catch (err: any) {
     res.status(500).json({ error: err.message });
   }
 };
 
+// Lấy danh sách Admins
+export const getAdmins = async (req: Request, res: Response) => {
+  try {
+    const admins = await User.findAll({
+      where: { role: 'admin' },
+      attributes: { exclude: ['password'] }
+    });
+    res.json(admins);
+  } catch (err: any) {
+    res.status(500).json({ error: err.message });
+  }
+};
+
+// Lấy danh sách Customers
+export const getCustomers = async (req: Request, res: Response) => {
+  try {
+    const customers = await User.findAll({
+      where: { role: 'customer' },
+      attributes: { exclude: ['password'] }
+    });
+    res.json(customers);
+  } catch (err: any) {
+    res.status(500).json({ error: err.message });
+  }
+};
+
+// Lấy user theo ID
 export const getUserById = async (req: Request, res: Response) => {
   try {
-    const user = await User.findByPk(req.params.id);
+    const user = await User.findByPk(req.params.id, {
+      attributes: { exclude: ['password'] }
+    });
     if (!user) return res.status(404).json({ message: 'Không tìm thấy người dùng.' });
     res.json(user);
   } catch (err: any) {
@@ -25,6 +57,7 @@ export const getUserById = async (req: Request, res: Response) => {
   }
 };
 
+// Cập nhật user
 export const updateUser = async (req: Request, res: Response) => {
   try {
     const user = await User.findByPk(req.params.id);
@@ -37,6 +70,7 @@ export const updateUser = async (req: Request, res: Response) => {
   }
 };
 
+//Xoá user
 export const deleteUser = async (req: Request, res: Response) => {
   try {
     const user = await User.findByPk(req.params.id);
@@ -49,7 +83,7 @@ export const deleteUser = async (req: Request, res: Response) => {
   }
 };
 
-// Đăng ký người dùng
+// Đăng ký
 export const registerUser = async (req: Request, res: Response) => {
   try {
     const { username, email, phone, password, role } = req.body;
@@ -64,7 +98,7 @@ export const registerUser = async (req: Request, res: Response) => {
       return res.status(400).json({ message: 'Email hoặc số điện thoại đã tồn tại' });
     }
 
-    const hashedPassword = await bcrypt.hash(password, 10); // mã hóa mật khẩu
+    const hashedPassword = await bcrypt.hash(password, 10);
 
     const user = await User.create({
       username,
@@ -72,23 +106,57 @@ export const registerUser = async (req: Request, res: Response) => {
       phone,
       password: hashedPassword,
       role: role || 'customer'
-    }); // Thêm người dùng vào csdl
+    });
 
-    res.status(201).json({ message: 'Đăng ký thành công', user }); // Gửi phản hồi
+    res.status(201).json({ message: 'Đăng ký thành công', user });
   } catch (error) {
     console.error('Lỗi khi đăng ký:', error);
     res.status(500).json({ message: 'Lỗi server' });
   }
 };
+// Tạo mới Admin
+export const createAdmin = async (req: Request, res: Response) => {
+  try {
+    const { username, email, phone, password } = req.body;
 
-// Đăng nhập người dùng
+    if (!username || !email || !phone || !password) {
+      return res.status(400).json({ message: 'Vui lòng cung cấp đầy đủ thông tin.' });
+    }
+
+    const existingUser = await User.findOne({
+      where: {
+        [Op.or]: [{ email }, { phone }]
+      }
+    });
+
+    if (existingUser) {
+      return res.status(400).json({ message: 'Email hoặc số điện thoại đã tồn tại' });
+    }
+
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    const admin = await User.create({
+      username,
+      email,
+      phone,
+      password: hashedPassword,
+      role: 'admin'
+    });
+
+    res.status(201).json({ message: 'Tạo admin thành công', admin });
+  } catch (err: any) {
+    console.error('Lỗi khi tạo admin:', err);
+    res.status(500).json({ message: 'Lỗi máy chủ', error: err.message });
+  }
+};
+
+// Đăng nhập
 export const loginUser = async (req: Request, res: Response) => {
-  console.log("BODY:", req.body);
   const { email, password } = req.body;
 
   try {
     const user = await User.findOne({ where: { email } });
-    if (!user) return res.status(404).json({ message: 'Người dùng không tồn tại' }); //Kiểm tra có người dùng hay không
+    if (!user) return res.status(404).json({ message: 'Người dùng không tồn tại' });
 
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) return res.status(401).json({ message: 'Mật khẩu không đúng' });
@@ -99,7 +167,6 @@ export const loginUser = async (req: Request, res: Response) => {
       { expiresIn: '72h' }
     );
 
-    // Tạo user object không bao gồm password và fullName
     const userResponse = {
       id: user.user_id,
       username: user.username,
@@ -119,8 +186,7 @@ export const loginUser = async (req: Request, res: Response) => {
   }
 };
 
-
-// Cập nhập mật khẩu
+// Đổi mật khẩu
 export const resetPassword = async (req: Request, res: Response) => {
   const { email, password } = req.body;
 
@@ -150,7 +216,6 @@ export const resetPassword = async (req: Request, res: Response) => {
 // Lấy thông tin user từ token
 export const getCurrentUser = async (req: Request, res: Response) => {
   try {
-    // Lấy user_id từ token đã được decode trong middleware
     const userId = (req as any).user?.user_id;
 
     if (!userId) {
@@ -184,8 +249,9 @@ export const getCurrentUser = async (req: Request, res: Response) => {
     });
   }
 };
-// Lấy lịch sử booking của Users
-exports.getUserBookings = async (req: Request, res: Response) => {
+
+// Lịch sử đặt vé của user
+export const getUserBookings = async (req: Request, res: Response) => {
   try {
     const userId = req.params.id;
 
@@ -196,11 +262,7 @@ exports.getUserBookings = async (req: Request, res: Response) => {
 
     const bookings = await Booking.findAll({
       where: { user_id: userId },
-      include: [
-        {
-          model: Ticket,
-        }
-      ],
+      include: [{ model: Ticket }],
       order: [['booking_time', 'DESC']]
     });
 

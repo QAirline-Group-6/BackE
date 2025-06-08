@@ -1,6 +1,6 @@
 import { Sequelize, DataTypes, Model, Optional } from 'sequelize';
 
-interface AirportAttributes {
+export interface AirportAttributes {
     airport_id: number;
     code: string;
     name: string;
