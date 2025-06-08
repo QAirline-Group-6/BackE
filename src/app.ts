@@ -24,6 +24,7 @@ import customerRoutes from './api/routes/customer.routes';
 import airportRoutes from './api/routes/airports.routes';
 import ticketRoutes from './api/routes/ticket.routes';
 import blogRoutes from './api/routes/blog.routes';
+import dashboardRoutes from './api/routes/dashboard.routes';
 
 // Use the routes with correct URL paths
 app.use('/flights', flightRoutes);
@@ -35,5 +36,6 @@ app.use('/customers', customerRoutes);
 app.use('/airports', airportRoutes);
 app.use('/tickets', ticketRoutes);
 app.use('/blogs', blogRoutes);
+app.use('/dashboard', dashboardRoutes);
 
 export default app;
