@@ -1,12 +1,17 @@
 import { Request, Response } from 'express';
-import { Aircraft } from '../models/aircraft.model'; // sửa đúng path nếu khác nhé
+import { Aircraft } from '../models/aircraft.model'; 
 
 export const createAircraft = async (req: Request, res: Response) => {
   try {
     const { manufacturer, model, total_seats } = req.body;
 
-    if (!manufacturer || !model || !total_seats) {
-      return res.status(400).json({ error: 'Missing required fields' });
+    if (
+      !manufacturer ||
+      !model ||
+      typeof total_seats !== 'number' ||
+      total_seats <= 0
+    ) {
+      return res.status(400).json({ error: 'Missing or invalid required fields' });
     }
 
     const newAircraft = await Aircraft.create({
@@ -27,7 +32,8 @@ export const getAllAircrafts = async (req: Request, res: Response) => {
     const aircrafts = await Aircraft.findAll();
     res.json(aircrafts);
   } catch (err: any) {
-    res.status(500).json({ error: err.message });
+    console.error('Error fetching aircrafts:', err);
+    res.status(500).json({ error: 'Internal server error' });
   }
 };
 
@@ -39,9 +45,12 @@ export const updateAircraft = async (req: Request, res: Response): Promise<void>
       return;
     }
 
-    await aircraft.update(req.body);
+    const { manufacturer, model, total_seats } = req.body;
+
+    await aircraft.update({ manufacturer, model, total_seats });
     res.json(aircraft);
   } catch (err: any) {
+    console.error('Error updating aircraft:', err);
     res.status(400).json({ error: err.message });
   }
 };
@@ -57,7 +66,7 @@ export const deleteAircraft = async (req: Request, res: Response): Promise<void>
     await aircraft.destroy();
     res.status(204).end();
   } catch (err: any) {
+    console.error('Error deleting aircraft:', err);
     res.status(500).json({ error: err.message });
   }
 };
-
